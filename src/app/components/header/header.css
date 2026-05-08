@@ -1,0 +1,93 @@
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 25px;
+  background: #131921; /* estilo Amazon */
+  color: white;
+}
+
+/* LOGO */
+.logo {
+  font-size: 22px;
+  font-weight: bold;
+  color: #ffcc00;
+}
+
+/* SEARCH */
+.search {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  margin: 0 20px;
+  background: white;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.search select {
+  border: none;
+  padding: 10px;
+  background: #f3f3f3;
+  outline: none;
+}
+
+.search input {
+  flex: 1;
+  padding: 10px;
+  border: none;
+  outline: none;
+}
+
+.search-btn {
+  background: #febd69;
+  border: none;
+  padding: 10px 15px;
+  cursor: pointer;
+}
+
+.search-btn svg {
+  width: 18px;
+  height: 18px;
+  fill: black;
+}
+
+/* RIGHT SIDE */
+.right {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+/* ACCOUNT */
+.account {
+  cursor: pointer;
+  font-size: 14px;
+}
+
+/* CART (SEM BACKGROUND MESMO) */
+.cart {
+  position: relative;
+  cursor: pointer;
+}
+
+.cart svg {
+  width: 26px;
+  height: 26px;
+  fill: white;
+}
+
+.badge {
+  position: absolute;
+  top: -6px;
+  right: -8px;
+  background: #ff3c00;
+  color: white;
+  font-size: 11px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}

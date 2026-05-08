@@ -1,0 +1,52 @@
+<section class="relative w-full h-[350px] md:h-[500px] bg-gray-900 overflow-hidden group">
+  
+  @for (b of banners; track b.title; let i = $index) {
+    @if (i === currentIndex) {
+      <img 
+        [src]="b.imageUrl" 
+        [alt]="b.title"
+        class="absolute inset-0 w-full h-full object-cover opacity-60 animate-fade-in"
+      >
+    }
+  }
+
+  <div class="relative max-w-7xl mx-auto h-full flex flex-col justify-center px-8 sm:px-12">
+    <div class="max-w-xl">
+      <span class="bg-yellow-400 text-gray-900 text-[10px] font-bold px-2 py-1 rounded uppercase tracking-widest">
+        Oferta Especial
+      </span>
+      
+      <h2 class="text-4xl md:text-6xl font-extrabold text-white mt-4 leading-tight">
+        {{ banners[currentIndex].title }}
+      </h2>
+      
+      <p class="text-lg text-gray-200 mt-4 font-light">
+        {{ banners[currentIndex].subtitle }}
+      </p>
+
+      <button class="mt-8 bg-white text-gray-900 font-bold py-3 px-8 rounded-full hover:bg-yellow-400 transition-all transform hover:scale-105 shadow-xl">
+        {{ banners[currentIndex].buttonText }}
+      </button>
+    </div>
+  </div>
+
+  <button (click)="prevBanner()" 
+    class="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-black/20 hover:bg-black/50 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 backdrop-blur-sm">
+    <i class="fa-solid fa-chevron-left text-xl"></i>
+  </button>
+
+  <button (click)="nextBanner()" 
+    class="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-black/20 hover:bg-black/50 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 backdrop-blur-sm">
+    <i class="fa-solid fa-chevron-right text-xl"></i>
+  </button>
+
+  <div class="absolute bottom-8 left-1/2 -translate-x-1/2 flex gap-3">
+    @for (b of banners; track $index; let i = $index) {
+      <button 
+        (click)="manualChange(i)"
+        [class]="i === currentIndex ? 'w-10 bg-yellow-400' : 'w-2 bg-white/40 hover:bg-white/70'"
+        class="h-2 rounded-full transition-all duration-500 shadow-sm">
+      </button>
+    }
+  </div>
+</section>
