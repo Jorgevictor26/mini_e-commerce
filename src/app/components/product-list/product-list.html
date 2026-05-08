@@ -8,46 +8,60 @@
 
   <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
     
-    <div *ngFor="let p of products" 
-         class="bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col group overflow-hidden">
-      
-      <div class="relative h-64 p-6 flex items-center justify-center bg-gray-50/50">
-        <img [src]="p.imageUrl" [alt]="p.name" 
-             class="max-h-full object-contain group-hover:scale-110 transition-transform duration-500">
+    @for (p of products; track p.id) {
+      <div class="bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col group overflow-hidden">
         
-        <span class="absolute top-3 left-3 bg-red-500 text-white text-[10px] font-bold px-2 py-1 rounded">
-          OFERTA
-        </span>
-      </div>
+        <div class="relative w-full aspect-square overflow-hidden bg-gray-50 flex items-center justify-center p-4">
+          <img 
+            [src]="p.imageUrl" 
+            [alt]="p.name" 
+            class="max-h-full max-w-full object-contain group-hover:scale-110 transition-transform duration-500"
+            loading="lazy"
+          >
+          
+          <span class="absolute top-3 left-3 bg-red-500 text-white text-[10px] font-bold px-2 py-1 rounded">
+            OFERTA
+          </span>
+        </div>
 
-      <div class="p-5 flex flex-col flex-grow">
-        <p class="text-xs text-gray-400 font-medium uppercase tracking-wider mb-1">{{ p.category }}</p>
-        <h3 class="text-sm font-semibold text-gray-700 line-clamp-2 min-h-[40px] mb-4">
-          {{ p.name }}
-        </h3>
+        <div class="p-5 flex flex-col flex-grow border-t border-gray-100">
+          <p class="text-xs text-gray-400 font-medium uppercase tracking-wider mb-1">{{ p.category }}</p>
+          <h3 class="text-sm font-semibold text-gray-700 line-clamp-2 min-h-[40px] mb-4">
+            {{ p.name }}
+          </h3>
 
-        <div class="mt-auto">
-          <p class="text-xs text-gray-400 line-through mb-1">{{ p.oldPrice | currency:'EUR' }}</p>
-          <div class="flex items-baseline gap-2">
-            <span class="text-2xl font-extrabold text-gray-900 leading-none">
-              {{ p.price | currency:'EUR' }}
-            </span>
+          <div class="mt-auto">
+            <p class="text-xs text-gray-400 line-through mb-1">{{ p.oldPrice | currency:'EUR' }}</p>
+            <div class="flex items-baseline gap-2">
+              <span class="text-2xl font-extrabold text-gray-900 leading-none">
+                {{ p.price | currency:'EUR' }}
+              </span>
+            </div>
           </div>
-        </div>
 
-        <div class="mt-3">
-          <p *ngIf="p.isFreeShipping" class="text-green-600 text-[11px] font-bold flex items-center gap-1">
-            <i class="fa-solid fa-bolt"></i> FRETE GRÁTIS
-          </p>
-          <p class="text-gray-500 text-[11px] mt-1">em 10x sem juros</p>
-        </div>
+          <div class="mt-3">
+            @if (p.isFreeShipping) {
+              <p class="text-green-600 text-[11px] font-bold flex items-center gap-1">
+                <i class="fa-solid fa-bolt"></i> FRETE GRÁTIS
+              </p>
+            } @else {
+              <p class="text-gray-400 text-[11px]">Entrega em 2-3 dias</p>
+            }
+            <p class="text-gray-500 text-[11px] mt-1">até 10x sem juros</p>
+          </div>
 
-        <button class="mt-6 w-full py-2.5 bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-bold rounded-lg text-sm transition-colors flex items-center justify-center gap-2">
-          <i class="fa-solid fa-cart-plus"></i>
-          Comprar
-        </button>
+          <button class="mt-6 w-full py-2.5 bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-bold rounded-lg text-sm transition-colors flex items-center justify-center gap-2 shadow-sm">
+            <i class="fa-solid fa-cart-plus"></i>
+            Comprar
+          </button>
+        </div>
       </div>
-    </div>
+    } @empty {
+      <div class="col-span-full text-center py-20 text-gray-500">
+        Nenhum produto encontrado.
+        <p class="text-sm">Verifica a tua ligação à API ou tenta novamente.</p>
+      </div>
+    }
 
   </div>
 </section>
