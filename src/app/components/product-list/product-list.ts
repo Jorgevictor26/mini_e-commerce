@@ -4,11 +4,12 @@ import { Router, RouterModule } from '@angular/router';
 import { Product, products } from '../../data/products';
 import { CartService } from '../../services/cart';
 import { AuthService } from '../../services/auth';
+import { TranslatePipe } from '../../pipes/translate';
 
 @Component({
   selector: 'app-product-list',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, TranslatePipe],
   templateUrl: './product-list.html',
   styleUrl: './product-list.css',
 })

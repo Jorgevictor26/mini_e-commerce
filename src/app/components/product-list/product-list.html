@@ -44,30 +44,30 @@
           <div class="mt-3">
             @if (p.isFreeShipping) {
               <p class="text-green-600 text-[11px] font-bold flex items-center gap-1">
-                <i class="fa-solid fa-bolt"></i> FRETE GRÁTIS
+                <i class="fa-solid fa-bolt"></i> {{ 'product.freeShipping' | translate }}
               </p>
             } @else {
-              <p class="text-gray-400 text-[11px]">Entrega em 2-3 dias</p>
+              <p class="text-gray-400 text-[11px]">{{ 'product.deliveryDays' | translate }}</p>
             }
-            <p class="text-gray-500 text-[11px] mt-1">até 10x sem juros</p>
+            <p class="text-gray-500 text-[11px] mt-1">{{ 'product.installments' | translate }}</p>
           </div>
 
           <div class="grid grid-cols-2 gap-2 mt-6">
           <button (click)="addToCart(p)" class="py-2.5 border border-yellow-400 hover:bg-yellow-50 text-gray-900 font-bold rounded-lg text-sm transition-colors flex items-center justify-center gap-2 shadow-sm">
             <i class="fa-solid fa-cart-plus"></i>
-            Adicionar
+            {{ 'product.add' | translate }}
           </button>
           <button (click)="buyNow(p)" class="py-2.5 bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-bold rounded-lg text-sm transition-colors flex items-center justify-center gap-2 shadow-sm">
             <i class="fa-solid fa-bolt"></i>
-            Comprar
+            {{ 'product.buy' | translate }}
           </button>
           </div>
         </div>
       </div>
     } @empty {
       <div class="col-span-full text-center py-20 text-gray-500">
-        Nenhum produto encontrado.
-        <p class="text-sm">Verifica a tua ligação à API ou tenta novamente.</p>
+        {{ 'product.noProducts' | translate }}
+        <p class="text-sm">{{ 'product.noProductsHint' | translate }}</p>
       </div>
     }
 

@@ -4,6 +4,7 @@ import { RouterModule } from '@angular/router';
 import { Hero } from '../../components/hero/hero';
 import { ProductList } from '../../components/product-list/product-list';
 import { categories, products } from '../../data/products';
+import { TranslatePipe } from '../../pipes/translate';
 
 
 @Component({
@@ -12,6 +13,7 @@ import { categories, products } from '../../data/products';
   imports: [
     CommonModule,
     RouterModule,
+    TranslatePipe,
     Hero, 
     ProductList, 
   ],

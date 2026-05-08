@@ -4,11 +4,13 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { categories, Product, products } from '../../data/products';
 import { CartService } from '../../services/cart';
 import { AuthService } from '../../services/auth';
+import { I18nService } from '../../services/i18n';
+import { TranslatePipe } from '../../pipes/translate';
 
 @Component({
   selector: 'app-catalog',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, TranslatePipe],
   templateUrl: './catalog.html',
   styleUrl: './catalog.css'
 })
@@ -22,7 +24,8 @@ export class Catalog implements OnInit {
     private route: ActivatedRoute,
     private cart: CartService,
     private router: Router,
-    private auth: AuthService
+    private auth: AuthService,
+    private i18n: I18nService
   ) {}
 
   ngOnInit() {
@@ -77,8 +80,8 @@ export class Catalog implements OnInit {
       return;
     }
 
-    this.title = 'Todos os produtos';
-    this.subtitle = 'Explore todo o catálogo da MiniShop em um só lugar.';
+    this.title = this.i18n.translate('catalog.allProducts');
+    this.subtitle = this.i18n.translate('catalog.allProductsSubtitle');
     this.products = products;
   }
 

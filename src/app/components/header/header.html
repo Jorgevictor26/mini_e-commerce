@@ -8,7 +8,7 @@
                 </div>
                 <div>
                     <h1 class="text-2xl font-bold leading-none">Mini<span class="text-yellow-500">Shop</span></h1>
-                    <p class="text-[10px] text-gray-500 uppercase tracking-tighter">Tudo que você precisa</p>
+                    <p class="text-[10px] text-gray-500 uppercase tracking-tighter">{{ 'brand.tagline' | translate }}</p>
                 </div>
             </a>
 
@@ -17,7 +17,7 @@
                     [(ngModel)]="searchTerm"
                     name="search"
                     type="text"
-                    placeholder="Pesquisar produtos, marcas e muito mais..."
+                    [placeholder]="'search.placeholder' | translate"
                     class="flex-1 px-4 py-2 outline-none text-sm"
                 >
                 <button type="submit" class="bg-yellow-400 px-5 py-2 hover:bg-yellow-500 transition" aria-label="Pesquisar produtos">
@@ -29,8 +29,8 @@
                 <button
                     (click)="theme.toggleTheme()"
                     class="w-10 h-10 rounded-full border border-gray-200 flex items-center justify-center hover:bg-yellow-100 hover:text-yellow-700 transition"
-                    [attr.aria-label]="theme.mode() === 'dark' ? 'Ativar modo claro' : 'Ativar modo escuro'"
-                    [title]="theme.mode() === 'dark' ? 'Modo claro' : 'Modo escuro'"
+                    [attr.aria-label]="theme.mode() === 'dark' ? ('theme.light' | translate) : ('theme.dark' | translate)"
+                    [title]="theme.mode() === 'dark' ? ('theme.light' | translate) : ('theme.dark' | translate)"
                 >
                     @if (theme.mode() === 'dark') {
                         <i class="fa-solid fa-sun text-lg"></i>
@@ -39,12 +39,23 @@
                     }
                 </button>
 
+                <select
+                    [ngModel]="i18n.language()"
+                    (ngModelChange)="changeLanguage($event)"
+                    class="h-10 rounded-full border border-gray-200 bg-white px-3 text-sm font-extrabold outline-none focus:ring-2 focus:ring-yellow-400 cursor-pointer"
+                    aria-label="Idioma"
+                >
+                    @for (language of languages; track language.value) {
+                        <option [value]="language.value">{{ language.label }}</option>
+                    }
+                </select>
+
                 <div class="relative">
                     <button (click)="toggleAccountMenu()" class="flex items-center gap-2 cursor-pointer hover:text-yellow-600 transition text-left">
                         <i class="fa-regular fa-user text-2xl"></i>
                         <div>
-                            <p class="text-[11px] leading-none">{{ auth.isLoggedIn() ? 'Olá' : 'Entrar' }}</p>
-                            <p class="font-bold flex items-center gap-1">{{ auth.isLoggedIn() ? auth.user()?.name : 'Minha conta' }} <i class="fa-solid fa-chevron-down text-[8px]"></i></p>
+                            <p class="text-[11px] leading-none">{{ auth.isLoggedIn() ? ('account.greeting' | translate) : ('account.enter' | translate) }}</p>
+                            <p class="font-bold flex items-center gap-1">{{ auth.isLoggedIn() ? auth.user()?.name : ('account.myAccount' | translate) }} <i class="fa-solid fa-chevron-down text-[8px]"></i></p>
                         </div>
                     </button>
 
@@ -58,33 +69,33 @@
                                 <div class="py-2">
                                     <a routerLink="/perfil" (click)="closeAccountMenu()" class="flex items-center gap-3 px-4 py-3 text-sm font-bold text-gray-700 hover:bg-yellow-50 hover:text-yellow-700 transition">
                                         <i class="fa-solid fa-user-pen w-4"></i>
-                                        Editar perfil
+                                        {{ 'account.editProfile' | translate }}
                                     </a>
                                     <a routerLink="/pedidos" (click)="closeAccountMenu()" class="flex items-center gap-3 px-4 py-3 text-sm font-bold text-gray-700 hover:bg-yellow-50 hover:text-yellow-700 transition">
                                         <i class="fa-solid fa-box w-4"></i>
-                                        Histórico de pedidos
+                                        {{ 'account.ordersHistory' | translate }}
                                     </a>
                                     <a routerLink="/tracking" (click)="closeAccountMenu()" class="flex items-center gap-3 px-4 py-3 text-sm font-bold text-gray-700 hover:bg-yellow-50 hover:text-yellow-700 transition">
                                         <i class="fa-solid fa-truck-fast w-4"></i>
-                                        Estado da entrega
+                                        {{ 'account.deliveryStatus' | translate }}
                                     </a>
                                     <a routerLink="/carrinho" (click)="closeAccountMenu()" class="flex items-center gap-3 px-4 py-3 text-sm font-bold text-gray-700 hover:bg-yellow-50 hover:text-yellow-700 transition">
                                         <i class="fa-solid fa-cart-shopping w-4"></i>
-                                        Carrinho
+                                        {{ 'account.cart' | translate }}
                                     </a>
                                 </div>
                                 <div class="border-t border-gray-100 p-2">
                                     <button (click)="logout()" class="w-full flex items-center gap-3 px-3 py-3 text-sm font-bold text-red-500 hover:bg-red-50 rounded-lg transition">
                                         <i class="fa-solid fa-right-from-bracket w-4"></i>
-                                        Sair
+                                        {{ 'account.logout' | translate }}
                                     </button>
                                 </div>
                             } @else {
                                 <div class="p-4">
-                                    <p class="font-extrabold text-gray-900">Entre na sua conta</p>
-                                    <p class="text-xs text-gray-500 mt-1">Faça login para comprar, ver pedidos e editar o perfil.</p>
+                                    <p class="font-extrabold text-gray-900">{{ 'account.loginTitle' | translate }}</p>
+                                    <p class="text-xs text-gray-500 mt-1">{{ 'account.loginText' | translate }}</p>
                                     <a routerLink="/conta" (click)="closeAccountMenu()" class="mt-4 w-full bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-extrabold py-3 rounded-lg transition flex items-center justify-center">
-                                        Fazer login
+                                        {{ 'account.loginButton' | translate }}
                                     </a>
                                 </div>
                             }
@@ -102,10 +113,10 @@
         <nav class="max-w-7xl mx-auto px-4 py-2 flex items-center justify-between">
             <div class="flex items-center gap-6 text-[13px] font-medium text-gray-600 overflow-x-auto pb-1">
                 <a routerLink="/produtos" class="flex items-center gap-2 font-bold text-gray-800 hover:text-yellow-600 min-w-fit">
-                    <i class="fa-solid fa-bars"></i> Todas as categorias
+                    <i class="fa-solid fa-bars"></i> {{ 'nav.allCategories' | translate }}
                 </a>
                 @for (link of menuLinks; track link.url) {
-                    <a [routerLink]="link.url" class="hover:text-yellow-600 transition min-w-fit">{{ link.label }}</a>
+                    <a [routerLink]="link.url" class="hover:text-yellow-600 transition min-w-fit">{{ link.labelKey | translate }}</a>
                 }
             </div>
         </nav>
