@@ -28,11 +28,25 @@ export class Catalog implements OnInit {
   ngOnInit() {
     this.route.paramMap.subscribe(() => this.applyRoute());
     this.route.data.subscribe(() => this.applyRoute());
+    this.route.queryParamMap.subscribe(() => this.applyRoute());
   }
 
   private applyRoute() {
     const type = this.route.snapshot.data['type'];
     const slug = this.route.snapshot.paramMap.get('slug');
+    const query = this.route.snapshot.queryParamMap.get('q')?.trim() ?? '';
+
+    if (query) {
+      const normalizedQuery = this.normalize(query);
+
+      this.title = `Resultado para "${query}"`;
+      this.subtitle = 'Produtos encontrados com base no nome, categoria e características.';
+      this.products = products.filter((product) => {
+        const searchableText = this.normalize(`${product.name} ${product.category} ${product.slug}`);
+        return searchableText.includes(normalizedQuery);
+      });
+      return;
+    }
 
     if (type === 'offers') {
       this.title = 'Ofertas do dia';

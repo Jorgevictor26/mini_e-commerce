@@ -26,6 +26,9 @@
           <p class="text-sm text-gray-500 mt-2">{{ auth.user()?.email }}</p>
 
           <div class="mt-6 space-y-3">
+            <a routerLink="/perfil" class="w-full border border-yellow-400 hover:bg-yellow-50 text-gray-900 font-extrabold py-3 rounded-lg transition flex items-center justify-center">
+              Editar minhas informações
+            </a>
             <a routerLink="/pedidos" class="w-full bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-extrabold py-3 rounded-lg transition flex items-center justify-center">
               Ver meus pedidos
             </a>
@@ -37,6 +40,13 @@
       </section>
 
       <section class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <a routerLink="/perfil" class="bg-white rounded-xl border border-gray-100 p-6 shadow-sm hover:border-yellow-400 hover:shadow-md transition">
+            <div class="w-12 h-12 rounded-lg bg-yellow-100 text-yellow-600 flex items-center justify-center text-xl">
+              <i class="fa-solid fa-user-pen"></i>
+            </div>
+            <h3 class="font-extrabold text-gray-900 mt-5">Minhas informações</h3>
+            <p class="text-sm text-gray-500 mt-2">Veja e edite dados pessoais e endereço.</p>
+          </a>
           <a routerLink="/pedidos" class="bg-white rounded-xl border border-gray-100 p-6 shadow-sm hover:border-yellow-400 hover:shadow-md transition">
             <div class="w-12 h-12 rounded-lg bg-yellow-100 text-yellow-600 flex items-center justify-center text-xl">
               <i class="fa-solid fa-box"></i>
@@ -51,13 +61,13 @@
             <h3 class="font-extrabold text-gray-900 mt-5">Favoritos</h3>
             <p class="text-sm text-gray-500 mt-2">Guarde produtos para comprar depois.</p>
           </article>
-          <article class="bg-white rounded-xl border border-gray-100 p-6 shadow-sm">
+          <a routerLink="/perfil" class="bg-white rounded-xl border border-gray-100 p-6 shadow-sm hover:border-yellow-400 hover:shadow-md transition">
             <div class="w-12 h-12 rounded-lg bg-yellow-100 text-yellow-600 flex items-center justify-center text-xl">
               <i class="fa-solid fa-location-dot"></i>
             </div>
             <h3 class="font-extrabold text-gray-900 mt-5">Endereços</h3>
             <p class="text-sm text-gray-500 mt-2">Gerencie locais de entrega.</p>
-          </article>
+          </a>
           <article class="bg-white rounded-xl border border-gray-100 p-6 shadow-sm">
             <div class="w-12 h-12 rounded-lg bg-yellow-100 text-yellow-600 flex items-center justify-center text-xl">
               <i class="fa-solid fa-headset"></i>

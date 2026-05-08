@@ -1,22 +1,27 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common'; // Importante para o *ngFor
-import { RouterModule } from '@angular/router';
+import { FormsModule } from '@angular/forms';
+import { Router, RouterModule } from '@angular/router';
 import { CartService } from '../../services/cart';
 import { ThemeService } from '../../services/theme';
 import { AuthService } from '../../services/auth';
 
 @Component({
   selector: 'app-header',
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, FormsModule, RouterModule],
   templateUrl: './header.html',
   styleUrl: './header.css',
 })
 
 export class Header {
+  searchTerm = '';
+  isAccountMenuOpen = false;
+
   constructor(
     public cart: CartService,
     public theme: ThemeService,
-    public auth: AuthService
+    public auth: AuthService,
+    private router: Router
   ) {}
 
   menuLinks = [
@@ -30,4 +35,26 @@ export class Header {
     { label: 'Esportes', url: '/categoria/esportes' },
     { label: 'Livros', url: '/categoria/livros' }
   ];
+
+  search() {
+    const query = this.searchTerm.trim();
+
+    this.router.navigate(['/produtos'], {
+      queryParams: query ? { q: query } : {}
+    });
+  }
+
+  toggleAccountMenu() {
+    this.isAccountMenuOpen = !this.isAccountMenuOpen;
+  }
+
+  closeAccountMenu() {
+    this.isAccountMenuOpen = false;
+  }
+
+  logout() {
+    this.auth.logout();
+    this.closeAccountMenu();
+    this.router.navigate(['/']);
+  }
 }

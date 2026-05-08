@@ -1,0 +1,150 @@
+<main class="bg-gray-50 min-h-screen">
+  <section class="max-w-7xl mx-auto px-4 py-10">
+    @if (!auth.isLoggedIn()) {
+      <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-10 text-center max-w-2xl mx-auto">
+        <div class="w-16 h-16 rounded-full bg-yellow-100 text-yellow-600 flex items-center justify-center mx-auto text-2xl">
+          <i class="fa-solid fa-user-lock"></i>
+        </div>
+        <h2 class="text-3xl font-extrabold text-gray-900 mt-5">Faça login para editar seus dados</h2>
+        <p class="text-gray-500 mt-3">As informações pessoais, endereço e preferências ficam disponíveis apenas para clientes logados.</p>
+        <a routerLink="/conta" [queryParams]="{ redirect: '/perfil' }" class="inline-flex mt-7 bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-extrabold px-6 py-3 rounded-lg transition">
+          Fazer login
+        </a>
+      </div>
+    } @else {
+      <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-8">
+        <div>
+          <p class="text-yellow-600 text-xs font-bold uppercase tracking-widest">Área do cliente</p>
+          <h2 class="text-3xl font-extrabold text-gray-900 mt-2">Minhas informações</h2>
+          <p class="text-gray-500 mt-2">Veja seus dados pessoais e edite quando precisar atualizar algo.</p>
+        </div>
+        <a routerLink="/conta" class="text-sm font-bold text-blue-600 hover:underline">Voltar para conta</a>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-[1fr_340px] gap-8">
+        <section class="bg-white rounded-xl border border-gray-100 shadow-sm p-6">
+          @if (saved) {
+            <div class="mb-5 rounded-lg bg-green-50 border border-green-100 p-4 text-green-700 text-sm font-bold">
+              <i class="fa-solid fa-circle-check mr-2"></i>
+              Informações atualizadas com sucesso.
+            </div>
+          }
+
+          @if (!isEditing) {
+            <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-6">
+              <div>
+                <h3 class="text-2xl font-extrabold text-gray-900">Dados do perfil</h3>
+                <p class="text-sm text-gray-500 mt-1">Estas são as informações salvas na sua conta.</p>
+              </div>
+              <button (click)="editProfile()" class="bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-extrabold px-5 py-3 rounded-lg transition">
+                <i class="fa-solid fa-user-pen mr-2"></i>
+                Editar perfil
+              </button>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div class="bg-gray-50 rounded-lg p-5">
+                <p class="text-xs text-gray-400 uppercase tracking-wider font-bold">Nome completo</p>
+                <p class="font-extrabold text-gray-900 mt-2">{{ auth.user()?.name }}</p>
+              </div>
+              <div class="bg-gray-50 rounded-lg p-5">
+                <p class="text-xs text-gray-400 uppercase tracking-wider font-bold">E-mail</p>
+                <p class="font-extrabold text-gray-900 mt-2">{{ auth.user()?.email }}</p>
+              </div>
+              <div class="bg-gray-50 rounded-lg p-5">
+                <p class="text-xs text-gray-400 uppercase tracking-wider font-bold">Telefone</p>
+                <p class="font-extrabold text-gray-900 mt-2">{{ auth.user()?.phone || 'Não informado' }}</p>
+              </div>
+              <div class="bg-gray-50 rounded-lg p-5">
+                <p class="text-xs text-gray-400 uppercase tracking-wider font-bold">Cidade</p>
+                <p class="font-extrabold text-gray-900 mt-2">{{ auth.user()?.city || 'Não informada' }}</p>
+              </div>
+              <div class="bg-gray-50 rounded-lg p-5 md:col-span-2">
+                <p class="text-xs text-gray-400 uppercase tracking-wider font-bold">Endereço</p>
+                <p class="font-extrabold text-gray-900 mt-2">{{ auth.user()?.address || 'Não informado' }}</p>
+              </div>
+              <div class="bg-gray-50 rounded-lg p-5 md:col-span-2">
+                <p class="text-xs text-gray-400 uppercase tracking-wider font-bold">Referência de entrega</p>
+                <p class="font-extrabold text-gray-900 mt-2">{{ auth.user()?.reference || 'Não informada' }}</p>
+              </div>
+            </div>
+          } @else {
+          <form (ngSubmit)="saveProfile()" class="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <div class="md:col-span-2 mb-1">
+              <h3 class="text-2xl font-extrabold text-gray-900">Editar perfil</h3>
+              <p class="text-sm text-gray-500 mt-1">Atualize as informações e salve para aplicar as mudanças.</p>
+            </div>
+
+            <label class="block">
+              <span class="text-sm font-bold text-gray-700">Nome completo</span>
+              <input [(ngModel)]="form.name" name="name" required class="mt-2 w-full border rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-yellow-400">
+            </label>
+
+            <label class="block">
+              <span class="text-sm font-bold text-gray-700">E-mail</span>
+              <input [(ngModel)]="form.email" name="email" type="email" required class="mt-2 w-full border rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-yellow-400">
+            </label>
+
+            <label class="block">
+              <span class="text-sm font-bold text-gray-700">Telefone</span>
+              <input [(ngModel)]="form.phone" name="phone" class="mt-2 w-full border rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-yellow-400">
+            </label>
+
+            <label class="block">
+              <span class="text-sm font-bold text-gray-700">Cidade</span>
+              <input [(ngModel)]="form.city" name="city" class="mt-2 w-full border rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-yellow-400">
+            </label>
+
+            <label class="block md:col-span-2">
+              <span class="text-sm font-bold text-gray-700">Endereço</span>
+              <input [(ngModel)]="form.address" name="address" class="mt-2 w-full border rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-yellow-400">
+            </label>
+
+            <label class="block md:col-span-2">
+              <span class="text-sm font-bold text-gray-700">Referência de entrega</span>
+              <textarea [(ngModel)]="form.reference" name="reference" rows="3" class="mt-2 w-full border rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-yellow-400"></textarea>
+            </label>
+
+            <div class="md:col-span-2 flex flex-col sm:flex-row gap-3">
+              <button class="bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-extrabold px-6 py-3 rounded-lg transition">
+                Salvar alterações
+              </button>
+              <button type="button" (click)="cancelEdit()" class="border border-gray-200 hover:bg-gray-100 text-gray-800 font-bold px-6 py-3 rounded-lg transition">
+                Cancelar
+              </button>
+            </div>
+          </form>
+          }
+        </section>
+
+        <aside class="space-y-4">
+          <article class="bg-white rounded-xl border border-gray-100 shadow-sm p-6">
+            <div class="w-14 h-14 rounded-full bg-yellow-100 text-yellow-600 flex items-center justify-center text-2xl">
+              <i class="fa-solid fa-user"></i>
+            </div>
+            <h3 class="text-xl font-extrabold text-gray-900 mt-5">{{ auth.user()?.name }}</h3>
+            <p class="text-sm text-gray-500 mt-1">{{ auth.user()?.email }}</p>
+          </article>
+
+          <article class="bg-white rounded-xl border border-gray-100 shadow-sm p-6">
+            <h3 class="font-extrabold text-gray-900">Acesso rápido</h3>
+            <div class="space-y-3 mt-4 text-sm">
+              <a routerLink="/pedidos" class="flex items-center gap-2 text-gray-600 hover:text-yellow-600">
+                <i class="fa-solid fa-box"></i>
+                Meus pedidos
+              </a>
+              <a routerLink="/tracking" class="flex items-center gap-2 text-gray-600 hover:text-yellow-600">
+                <i class="fa-solid fa-truck-fast"></i>
+                Tracking
+              </a>
+              <a routerLink="/carrinho" class="flex items-center gap-2 text-gray-600 hover:text-yellow-600">
+                <i class="fa-solid fa-cart-shopping"></i>
+                Carrinho
+              </a>
+            </div>
+          </article>
+        </aside>
+      </div>
+    }
+  </section>
+</main>

@@ -12,12 +12,18 @@
                 </div>
             </a>
 
-            <div class="flex-1 flex items-center border rounded-md overflow-hidden">
-                <input type="text" placeholder="Pesquisar produtos, marcas e muito mais..." class="flex-1 px-4 py-2 outline-none text-sm">
-                <a routerLink="/produtos" class="bg-yellow-400 px-5 py-2 hover:bg-yellow-500 transition" aria-label="Pesquisar produtos">
+            <form (ngSubmit)="search()" class="flex-1 flex items-center border rounded-md overflow-hidden">
+                <input
+                    [(ngModel)]="searchTerm"
+                    name="search"
+                    type="text"
+                    placeholder="Pesquisar produtos, marcas e muito mais..."
+                    class="flex-1 px-4 py-2 outline-none text-sm"
+                >
+                <button type="submit" class="bg-yellow-400 px-5 py-2 hover:bg-yellow-500 transition" aria-label="Pesquisar produtos">
                     <i class="fa-solid fa-magnifying-glass text-gray-800"></i>
-                </a>
-            </div>
+                </button>
+            </form>
 
             <div class="flex items-center gap-6 min-w-fit text-sm text-gray-700">
                 <button
@@ -33,18 +39,58 @@
                     }
                 </button>
 
-                <a routerLink="/conta" class="flex items-center gap-2 cursor-pointer hover:text-yellow-600 transition">
-                    <i class="fa-regular fa-user text-2xl"></i>
-                    <div>
-                        <p class="text-[11px] leading-none">{{ auth.isLoggedIn() ? 'Olá' : 'Entrar' }}</p>
-                        <p class="font-bold flex items-center gap-1">{{ auth.isLoggedIn() ? auth.user()?.name : 'Minha conta' }} <i class="fa-solid fa-chevron-down text-[8px]"></i></p>
-                    </div>
-                </a>
+                <div class="relative">
+                    <button (click)="toggleAccountMenu()" class="flex items-center gap-2 cursor-pointer hover:text-yellow-600 transition text-left">
+                        <i class="fa-regular fa-user text-2xl"></i>
+                        <div>
+                            <p class="text-[11px] leading-none">{{ auth.isLoggedIn() ? 'Olá' : 'Entrar' }}</p>
+                            <p class="font-bold flex items-center gap-1">{{ auth.isLoggedIn() ? auth.user()?.name : 'Minha conta' }} <i class="fa-solid fa-chevron-down text-[8px]"></i></p>
+                        </div>
+                    </button>
 
-                <a routerLink="/pedidos" class="hidden lg:flex items-center gap-2 hover:text-yellow-600 transition">
-                    <i class="fa-solid fa-box text-xl"></i>
-                    <span class="font-bold">Meus pedidos</span>
-                </a>
+                    @if (isAccountMenuOpen) {
+                        <div class="absolute right-0 top-full mt-3 w-64 bg-white border border-gray-100 rounded-xl shadow-xl z-50 overflow-hidden">
+                            @if (auth.isLoggedIn()) {
+                                <div class="p-4 border-b border-gray-100">
+                                    <p class="font-extrabold text-gray-900">{{ auth.user()?.name }}</p>
+                                    <p class="text-xs text-gray-500 mt-1">{{ auth.user()?.email }}</p>
+                                </div>
+                                <div class="py-2">
+                                    <a routerLink="/perfil" (click)="closeAccountMenu()" class="flex items-center gap-3 px-4 py-3 text-sm font-bold text-gray-700 hover:bg-yellow-50 hover:text-yellow-700 transition">
+                                        <i class="fa-solid fa-user-pen w-4"></i>
+                                        Editar perfil
+                                    </a>
+                                    <a routerLink="/pedidos" (click)="closeAccountMenu()" class="flex items-center gap-3 px-4 py-3 text-sm font-bold text-gray-700 hover:bg-yellow-50 hover:text-yellow-700 transition">
+                                        <i class="fa-solid fa-box w-4"></i>
+                                        Histórico de pedidos
+                                    </a>
+                                    <a routerLink="/tracking" (click)="closeAccountMenu()" class="flex items-center gap-3 px-4 py-3 text-sm font-bold text-gray-700 hover:bg-yellow-50 hover:text-yellow-700 transition">
+                                        <i class="fa-solid fa-truck-fast w-4"></i>
+                                        Estado da entrega
+                                    </a>
+                                    <a routerLink="/carrinho" (click)="closeAccountMenu()" class="flex items-center gap-3 px-4 py-3 text-sm font-bold text-gray-700 hover:bg-yellow-50 hover:text-yellow-700 transition">
+                                        <i class="fa-solid fa-cart-shopping w-4"></i>
+                                        Carrinho
+                                    </a>
+                                </div>
+                                <div class="border-t border-gray-100 p-2">
+                                    <button (click)="logout()" class="w-full flex items-center gap-3 px-3 py-3 text-sm font-bold text-red-500 hover:bg-red-50 rounded-lg transition">
+                                        <i class="fa-solid fa-right-from-bracket w-4"></i>
+                                        Sair
+                                    </button>
+                                </div>
+                            } @else {
+                                <div class="p-4">
+                                    <p class="font-extrabold text-gray-900">Entre na sua conta</p>
+                                    <p class="text-xs text-gray-500 mt-1">Faça login para comprar, ver pedidos e editar o perfil.</p>
+                                    <a routerLink="/conta" (click)="closeAccountMenu()" class="mt-4 w-full bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-extrabold py-3 rounded-lg transition flex items-center justify-center">
+                                        Fazer login
+                                    </a>
+                                </div>
+                            }
+                        </div>
+                    }
+                </div>
                 
                 <a routerLink="/carrinho" class="relative cursor-pointer" aria-label="Carrinho">
                     <i class="fa-solid fa-cart-shopping text-2xl text-gray-600"></i>
