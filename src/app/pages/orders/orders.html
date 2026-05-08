@@ -1,0 +1,78 @@
+<main class="bg-gray-50 min-h-screen">
+  <section class="max-w-7xl mx-auto px-4 py-10">
+    @if (!auth.isLoggedIn()) {
+      <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-10 text-center max-w-2xl mx-auto">
+        <div class="w-16 h-16 rounded-full bg-yellow-100 text-yellow-600 flex items-center justify-center mx-auto text-2xl">
+          <i class="fa-solid fa-lock"></i>
+        </div>
+        <h2 class="text-3xl font-extrabold text-gray-900 mt-5">Faça login para ver seus pedidos</h2>
+        <p class="text-gray-500 mt-3">O histórico, estado das entregas e detalhes dos pedidos ficam disponíveis apenas para clientes logados.</p>
+        <a routerLink="/conta" [queryParams]="{ redirect: '/pedidos' }" class="inline-flex mt-7 bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-extrabold px-6 py-3 rounded-lg transition">
+          Fazer login
+        </a>
+      </div>
+    } @else {
+      <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-8">
+        <div>
+          <p class="text-yellow-600 text-xs font-bold uppercase tracking-widest">Área do cliente</p>
+          <h2 class="text-3xl font-extrabold text-gray-900 mt-2">Meus pedidos</h2>
+          <p class="text-gray-500 mt-2">Histórico de compras, estados dos pedidos e acompanhamento de entregas.</p>
+        </div>
+        <a routerLink="/tracking" class="text-sm font-bold text-blue-600 hover:underline">Ver tracking atual</a>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-8">
+        <section class="space-y-4">
+          @for (order of orders; track order.code) {
+            <article class="bg-white rounded-xl border border-gray-100 shadow-sm p-6">
+              <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
+                <div>
+                  <p class="text-xs text-gray-400 font-bold uppercase tracking-wider">Pedido {{ order.code }}</p>
+                  <h3 class="text-xl font-extrabold text-gray-900 mt-1">{{ order.status }}</h3>
+                  <p class="text-sm text-gray-500 mt-1">Criado em {{ order.date }}</p>
+                </div>
+                <div class="text-left md:text-right">
+                  <p class="text-sm text-gray-500">Total</p>
+                  <p class="text-2xl font-extrabold text-gray-900">{{ order.total | currency:'EUR' }}</p>
+                </div>
+              </div>
+
+              <div class="grid grid-cols-2 md:grid-cols-5 gap-3 mt-6">
+                @for (step of steps; track step; let i = $index) {
+                  <div
+                    [class]="i <= order.currentStep ? 'border-yellow-400 bg-yellow-50 text-gray-900' : 'border-gray-100 bg-gray-50 text-gray-400'"
+                    class="border rounded-lg p-3"
+                  >
+                    <i [class]="i <= order.currentStep ? 'fa-solid fa-circle-check text-yellow-500' : 'fa-regular fa-circle'"></i>
+                    <p class="text-xs font-bold mt-2">{{ step }}</p>
+                  </div>
+                }
+              </div>
+
+              <div class="flex flex-col sm:flex-row gap-3 mt-6">
+                <a routerLink="/tracking" class="bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-extrabold px-5 py-3 rounded-lg transition text-center">
+                  Acompanhar pedido
+                </a>
+                <a routerLink="/produtos" class="border border-gray-200 hover:bg-gray-100 text-gray-800 font-bold px-5 py-3 rounded-lg transition text-center">
+                  Comprar novamente
+                </a>
+              </div>
+            </article>
+          }
+        </section>
+
+        <aside class="space-y-4">
+          <article class="bg-white rounded-xl border border-gray-100 shadow-sm p-6">
+            <h3 class="text-xl font-extrabold text-gray-900">Privilégios</h3>
+            <div class="space-y-4 mt-5 text-sm text-gray-600">
+              <p><i class="fa-solid fa-box text-yellow-500 mr-2"></i>Histórico de compras</p>
+              <p><i class="fa-solid fa-truck-fast text-yellow-500 mr-2"></i>Estado dos pedidos</p>
+              <p><i class="fa-solid fa-rotate-left text-yellow-500 mr-2"></i>Trocas e devoluções</p>
+              <p><i class="fa-solid fa-heart text-yellow-500 mr-2"></i>Favoritos e ofertas personalizadas</p>
+            </div>
+          </article>
+        </aside>
+      </div>
+    }
+  </section>
+</main>

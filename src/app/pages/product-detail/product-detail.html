@@ -1,0 +1,137 @@
+<main class="bg-gray-50 min-h-screen">
+  @if (product) {
+    <section class="max-w-7xl mx-auto px-4 py-8">
+      <nav class="text-sm text-gray-500 mb-6">
+        <a routerLink="/" class="hover:text-yellow-600">Home</a>
+        <span class="mx-2">/</span>
+        <a routerLink="/produtos" class="hover:text-yellow-600">Produtos</a>
+        <span class="mx-2">/</span>
+        <span class="text-gray-800 font-semibold">{{ product.name }}</span>
+      </nav>
+
+      <div class="grid grid-cols-1 lg:grid-cols-[1fr_470px] gap-8">
+        <section class="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
+          <div class="aspect-[4/3] bg-gray-100">
+            <img [src]="product.imageUrl" [alt]="product.name" class="w-full h-full object-cover">
+          </div>
+        </section>
+
+        <aside class="bg-white rounded-xl border border-gray-100 shadow-sm p-6 h-fit">
+          <div class="flex items-center gap-2 mb-3">
+            <span class="bg-red-500 text-white text-[10px] font-bold px-2 py-1 rounded">-{{ discountPercent }}%</span>
+            @if (product.isNew) {
+              <span class="bg-gray-900 text-white text-[10px] font-bold px-2 py-1 rounded">NOVO</span>
+            }
+          </div>
+
+          <p class="text-xs text-gray-400 font-bold uppercase tracking-widest">{{ product.category }}</p>
+          <h2 class="text-3xl font-extrabold text-gray-900 mt-2">{{ product.name }}</h2>
+
+          <div class="flex items-center gap-3 mt-4">
+            <div class="text-yellow-500 text-sm">
+              <i class="fa-solid fa-star"></i>
+              <i class="fa-solid fa-star"></i>
+              <i class="fa-solid fa-star"></i>
+              <i class="fa-solid fa-star"></i>
+              <i class="fa-solid fa-star-half-stroke"></i>
+            </div>
+            <span class="text-sm text-gray-500">{{ product.rating }} de avaliação</span>
+          </div>
+
+          <div class="mt-6">
+            <p class="text-sm text-gray-400 line-through">{{ product.oldPrice | currency:'EUR' }}</p>
+            <p class="text-4xl font-extrabold text-gray-900">{{ product.price | currency:'EUR' }}</p>
+            <p class="text-sm text-gray-500 mt-1">em até 10x sem juros</p>
+          </div>
+
+          <div class="mt-6 p-4 bg-green-50 border border-green-100 rounded-lg">
+            <p class="text-green-700 font-bold text-sm">
+              <i class="fa-solid fa-truck-fast"></i>
+              {{ product.isFreeShipping ? 'Frete grátis disponível' : 'Entrega rápida disponível' }}
+            </p>
+            <p class="text-xs text-green-700/80 mt-1">Receba entre 2 e 5 dias úteis conforme a sua região.</p>
+          </div>
+
+          <div class="mt-6">
+            <p class="text-sm font-bold text-gray-700 mb-2">Quantidade</p>
+            <div class="inline-flex items-center border rounded-lg overflow-hidden bg-white">
+              <button (click)="decreaseQuantity()" class="w-11 h-11 hover:bg-gray-100" aria-label="Diminuir quantidade">-</button>
+              <span class="w-12 text-center font-bold">{{ quantity }}</span>
+              <button (click)="increaseQuantity()" class="w-11 h-11 hover:bg-gray-100" aria-label="Aumentar quantidade">+</button>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-7">
+            <button (click)="addToCart()" class="py-3 rounded-lg border border-yellow-400 text-gray-900 font-extrabold flex items-center justify-center gap-2 hover:bg-yellow-50 transition">
+              <i class="fa-solid fa-cart-plus"></i>
+              Adicionar
+            </button>
+            <button (click)="buyNow()" class="py-3 rounded-lg bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-extrabold flex items-center justify-center gap-2 transition">
+              <i class="fa-solid fa-bolt"></i>
+              Comprar agora
+            </button>
+          </div>
+        </aside>
+      </div>
+
+      <section class="grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-8 mt-8">
+        <article class="bg-white rounded-xl border border-gray-100 shadow-sm p-6">
+          <h3 class="text-xl font-extrabold text-gray-900">Detalhes do produto</h3>
+          <p class="text-gray-600 mt-4 leading-relaxed">
+            Produto selecionado pela MiniShop para quem procura qualidade, bom preço e entrega rápida.
+            Ideal para uso diário, com acabamento moderno e garantia de compra segura.
+          </p>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-6">
+            @for (item of [
+              { label: 'Categoria', value: product.category },
+              { label: 'Disponibilidade', value: 'Em stock' },
+              { label: 'Entrega', value: product.isFreeShipping ? 'Frete grátis' : '2-3 dias' },
+              { label: 'Pagamento', value: 'Até 10x sem juros' }
+            ]; track item.label) {
+              <div class="bg-gray-50 rounded-lg p-4">
+                <p class="text-xs text-gray-400 uppercase tracking-wider font-bold">{{ item.label }}</p>
+                <p class="font-bold text-gray-800 mt-1">{{ item.value }}</p>
+              </div>
+            }
+          </div>
+        </article>
+
+        <aside class="bg-white rounded-xl border border-gray-100 shadow-sm p-6 h-fit">
+          <h3 class="text-xl font-extrabold text-gray-900">Compra segura</h3>
+          <div class="space-y-4 mt-5 text-sm text-gray-600">
+            <p><i class="fa-solid fa-shield-halved text-yellow-500 mr-2"></i>Pagamento protegido</p>
+            <p><i class="fa-solid fa-rotate-left text-yellow-500 mr-2"></i>Troca simples em até 7 dias</p>
+            <p><i class="fa-solid fa-headset text-yellow-500 mr-2"></i>Suporte durante todo o pedido</p>
+          </div>
+        </aside>
+      </section>
+
+      @if (relatedProducts.length) {
+        <section class="mt-10">
+          <h3 class="text-2xl font-bold text-gray-800 border-l-4 border-yellow-400 pl-4 mb-6">Produtos relacionados</h3>
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            @for (related of relatedProducts; track related.id) {
+              <a [routerLink]="['/produto', related.slug]" class="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden hover:shadow-lg transition group">
+                <div class="aspect-square bg-gray-100 overflow-hidden">
+                  <img [src]="related.imageUrl" [alt]="related.name" class="w-full h-full object-cover group-hover:scale-110 transition duration-500">
+                </div>
+                <div class="p-4">
+                  <p class="text-xs uppercase tracking-wider text-gray-400 font-bold">{{ related.category }}</p>
+                  <h4 class="font-bold text-gray-800 mt-1 line-clamp-2">{{ related.name }}</h4>
+                  <p class="text-xl font-extrabold text-gray-900 mt-3">{{ related.price | currency:'EUR' }}</p>
+                </div>
+              </a>
+            }
+          </div>
+        </section>
+      }
+    </section>
+  } @else {
+    <section class="max-w-7xl mx-auto px-4 py-20 text-center">
+      <h2 class="text-3xl font-extrabold text-gray-900">Produto não encontrado</h2>
+      <p class="text-gray-500 mt-3">Este produto não existe ou foi removido.</p>
+      <a routerLink="/produtos" class="inline-flex mt-6 bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-extrabold px-6 py-3 rounded-lg">Ver produtos</a>
+    </section>
+  }
+</main>

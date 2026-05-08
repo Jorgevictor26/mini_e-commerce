@@ -1,0 +1,93 @@
+import { Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { categories, Product, products } from '../../data/products';
+import { CartService } from '../../services/cart';
+import { AuthService } from '../../services/auth';
+
+@Component({
+  selector: 'app-catalog',
+  standalone: true,
+  imports: [CommonModule, RouterModule],
+  templateUrl: './catalog.html',
+  styleUrl: './catalog.css'
+})
+export class Catalog implements OnInit {
+  title = 'Produtos';
+  subtitle = 'Escolha produtos selecionados com entrega rápida e pagamento facilitado.';
+  products: Product[] = products;
+  categories = categories;
+
+  constructor(
+    private route: ActivatedRoute,
+    private cart: CartService,
+    private router: Router,
+    private auth: AuthService
+  ) {}
+
+  ngOnInit() {
+    this.route.paramMap.subscribe(() => this.applyRoute());
+    this.route.data.subscribe(() => this.applyRoute());
+  }
+
+  private applyRoute() {
+    const type = this.route.snapshot.data['type'];
+    const slug = this.route.snapshot.paramMap.get('slug');
+
+    if (type === 'offers') {
+      this.title = 'Ofertas do dia';
+      this.subtitle = 'Descontos ativos nos produtos mais procurados da MiniShop.';
+      this.products = products.filter((product) => product.isOffer);
+      return;
+    }
+
+    if (type === 'best-sellers') {
+      this.title = 'Mais Vendidos';
+      this.subtitle = 'Produtos que os clientes mais compram e recomendam.';
+      this.products = products.filter((product) => product.isBestSeller);
+      return;
+    }
+
+    if (type === 'new-arrivals') {
+      this.title = 'Lançamentos';
+      this.subtitle = 'Novidades que acabaram de chegar ao catálogo.';
+      this.products = products.filter((product) => product.isNew);
+      return;
+    }
+
+    if (slug) {
+      const category = categories.find((item) => item.slug === slug);
+      this.title = category?.label ?? 'Categoria';
+      this.subtitle = category?.description ?? 'Veja os produtos disponíveis nesta categoria.';
+      this.products = products.filter((product) => this.normalize(product.category) === slug);
+      return;
+    }
+
+    this.title = 'Todos os produtos';
+    this.subtitle = 'Explore todo o catálogo da MiniShop em um só lugar.';
+    this.products = products;
+  }
+
+  private normalize(value: string) {
+    return value
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toLowerCase()
+      .replace(/&/g, 'e')
+      .replace(/\s+/g, '-');
+  }
+
+  addToCart(product: Product) {
+    this.cart.add(product);
+  }
+
+  buyNow(product: Product) {
+    if (!this.auth.isLoggedIn()) {
+      this.router.navigate(['/conta'], { queryParams: { redirect: '/checkout' } });
+      return;
+    }
+
+    this.cart.add(product);
+    this.router.navigate(['/checkout']);
+  }
+}

@@ -1,0 +1,100 @@
+<main class="bg-gray-50 min-h-screen">
+  <section class="bg-gray-900 text-white">
+    <div class="max-w-7xl mx-auto px-4 py-12 md:py-16">
+      <div class="max-w-3xl">
+        <p class="text-yellow-400 text-xs font-bold uppercase tracking-widest">MiniShop</p>
+        <h2 class="text-3xl md:text-5xl font-extrabold mt-3">{{ title }}</h2>
+        <p class="text-gray-300 mt-4 text-base md:text-lg">{{ subtitle }}</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="max-w-7xl mx-auto px-4 pt-8">
+    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+      @for (category of categories; track category.slug) {
+        <a
+          [routerLink]="['/categoria', category.slug]"
+          class="bg-white border border-gray-100 rounded-lg p-4 flex items-center gap-3 hover:border-yellow-400 hover:shadow-md transition"
+        >
+          <i [class]="category.icon + ' text-yellow-500 text-xl'"></i>
+          <span class="text-sm font-bold text-gray-700">{{ category.label }}</span>
+        </a>
+      }
+    </div>
+  </section>
+
+  <section class="max-w-7xl mx-auto px-4 py-10">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
+      <h3 class="text-xl font-bold text-gray-800">{{ products.length }} produtos encontrados</h3>
+      <div class="flex items-center gap-2 text-sm text-gray-500">
+        <i class="fa-solid fa-truck-fast text-green-600"></i>
+        Entrega rápida em produtos selecionados
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+      @for (p of products; track p.id) {
+        <article class="bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col group overflow-hidden">
+          <a [routerLink]="['/produto', p.slug]" class="relative w-full aspect-square overflow-hidden bg-gray-50 flex items-center justify-center">
+            <img
+              [src]="p.imageUrl"
+              [alt]="p.name"
+              class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+              loading="lazy"
+            >
+            @if (p.isOffer) {
+              <span class="absolute top-3 left-3 bg-red-500 text-white text-[10px] font-bold px-2 py-1 rounded">OFERTA</span>
+            }
+            @if (p.isNew) {
+              <span class="absolute top-3 right-3 bg-gray-900 text-white text-[10px] font-bold px-2 py-1 rounded">NOVO</span>
+            }
+          </a>
+
+          <div class="p-5 flex flex-col flex-grow border-t border-gray-100">
+            <div class="flex items-center justify-between gap-3">
+              <p class="text-xs text-gray-400 font-medium uppercase tracking-wider">{{ p.category }}</p>
+              <p class="text-xs text-yellow-500 font-bold">
+                <i class="fa-solid fa-star"></i> {{ p.rating }}
+              </p>
+            </div>
+
+            <a [routerLink]="['/produto', p.slug]" class="text-sm font-semibold text-gray-700 hover:text-yellow-600 line-clamp-2 min-h-[40px] mt-2 mb-4">{{ p.name }}</a>
+
+            <div class="mt-auto">
+              <p class="text-xs text-gray-400 line-through mb-1">{{ p.oldPrice | currency:'EUR' }}</p>
+              <span class="text-2xl font-extrabold text-gray-900 leading-none">{{ p.price | currency:'EUR' }}</span>
+            </div>
+
+            <div class="mt-3 min-h-[38px]">
+              @if (p.isFreeShipping) {
+                <p class="text-green-600 text-[11px] font-bold flex items-center gap-1">
+                  <i class="fa-solid fa-bolt"></i> FRETE GRÁTIS
+                </p>
+              } @else {
+                <p class="text-gray-400 text-[11px]">Entrega em 2-3 dias</p>
+              }
+              <p class="text-gray-500 text-[11px] mt-1">até 10x sem juros</p>
+            </div>
+
+            <div class="grid grid-cols-2 gap-2 mt-6">
+            <button (click)="addToCart(p)" class="py-2.5 border border-yellow-400 hover:bg-yellow-50 text-gray-900 font-bold rounded-lg text-sm transition-colors flex items-center justify-center gap-2 shadow-sm">
+              <i class="fa-solid fa-cart-plus"></i>
+              Adicionar
+            </button>
+            <button (click)="buyNow(p)" class="py-2.5 bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-bold rounded-lg text-sm transition-colors flex items-center justify-center gap-2 shadow-sm">
+              <i class="fa-solid fa-bolt"></i>
+              Comprar
+            </button>
+            </div>
+          </div>
+        </article>
+      } @empty {
+        <div class="col-span-full bg-white rounded-xl border border-gray-100 p-12 text-center">
+          <i class="fa-solid fa-box-open text-4xl text-gray-300 mb-4"></i>
+          <p class="font-bold text-gray-700">Nenhum produto encontrado.</p>
+          <a routerLink="/" class="inline-flex mt-4 text-sm font-semibold text-blue-600 hover:underline">Voltar para a home</a>
+        </div>
+      }
+    </div>
+  </section>
+</main>

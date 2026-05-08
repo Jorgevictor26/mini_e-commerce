@@ -1,0 +1,88 @@
+<main class="bg-gray-50 min-h-screen">
+  <section class="max-w-7xl mx-auto px-4 py-10">
+    <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-8">
+      <div>
+        <p class="text-yellow-600 text-xs font-bold uppercase tracking-widest">Carrinho</p>
+        <h2 class="text-3xl font-extrabold text-gray-900 mt-2">Finalize sua compra</h2>
+        <p class="text-gray-500 mt-2">Revise os produtos, entrega e valores antes de avançar.</p>
+      </div>
+      <a routerLink="/produtos" class="text-sm font-bold text-blue-600 hover:underline">Continuar comprando</a>
+    </div>
+
+    @if (cart.items().length) {
+    <div class="grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-8">
+      <section class="space-y-4">
+        @for (item of cart.items(); track item.id) {
+          <article class="bg-white rounded-xl border border-gray-100 p-4 flex flex-col sm:flex-row gap-4 shadow-sm">
+            <div class="w-full sm:w-28 aspect-square bg-gray-50 rounded-lg flex items-center justify-center p-3">
+              <img [src]="item.imageUrl" [alt]="item.name" class="w-full h-full object-cover rounded-md">
+            </div>
+            <div class="flex-1">
+              <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
+                <div>
+                  <p class="text-xs uppercase tracking-wider text-gray-400 font-semibold">{{ item.category }}</p>
+                  <h3 class="font-bold text-gray-800 mt-1">{{ item.name }}</h3>
+                  <p class="text-green-600 text-xs font-bold mt-2">
+                    <i class="fa-solid fa-truck-fast"></i>
+                    Entrega rápida disponível
+                  </p>
+                </div>
+                <p class="text-xl font-extrabold text-gray-900">{{ item.price | currency:'EUR' }}</p>
+              </div>
+
+              <div class="flex items-center justify-between mt-5">
+                <div class="inline-flex items-center border rounded-lg overflow-hidden">
+                  <button (click)="decrease(item.id)" class="w-9 h-9 hover:bg-gray-100" aria-label="Diminuir quantidade">-</button>
+                  <span class="w-10 text-center text-sm font-bold">{{ item.quantity }}</span>
+                  <button (click)="increase(item.id)" class="w-9 h-9 hover:bg-gray-100" aria-label="Aumentar quantidade">+</button>
+                </div>
+                <button (click)="remove(item.id)" class="text-sm text-red-500 font-semibold hover:underline">
+                  <i class="fa-regular fa-trash-can"></i>
+                  Remover
+                </button>
+              </div>
+            </div>
+          </article>
+        }
+      </section>
+
+      <aside class="bg-white rounded-xl border border-gray-100 p-6 shadow-sm h-fit">
+        <h3 class="font-extrabold text-gray-900 text-xl mb-5">Resumo</h3>
+        <div class="space-y-3 text-sm">
+          <div class="flex justify-between text-gray-600">
+            <span>Subtotal</span>
+            <strong>{{ cart.subtotal() | currency:'EUR' }}</strong>
+          </div>
+          <div class="flex justify-between text-gray-600">
+            <span>Entrega</span>
+            <strong class="text-green-600">Grátis</strong>
+          </div>
+          <div class="flex justify-between text-gray-600">
+            <span>Desconto</span>
+            <strong>-{{ cart.discount() | currency:'EUR' }}</strong>
+          </div>
+        </div>
+        <div class="border-t mt-5 pt-5 flex justify-between items-center">
+          <span class="font-bold text-gray-700">Total</span>
+          <strong class="text-2xl text-gray-900">{{ cart.total() | currency:'EUR' }}</strong>
+        </div>
+        <a routerLink="/checkout" class="mt-6 w-full py-3 bg-yellow-400 hover:bg-yellow-500 rounded-lg text-gray-900 font-extrabold transition flex items-center justify-center">
+          Finalizar pedido
+        </a>
+        <p class="text-xs text-gray-400 mt-3 text-center">Pagamento seguro com cartão, PayPal ou Apple Pay.</p>
+      </aside>
+    </div>
+    } @else {
+      <div class="bg-white rounded-xl border border-gray-100 p-12 text-center shadow-sm">
+        <div class="w-16 h-16 rounded-full bg-yellow-100 text-yellow-600 flex items-center justify-center mx-auto text-2xl">
+          <i class="fa-solid fa-cart-shopping"></i>
+        </div>
+        <h3 class="text-2xl font-extrabold text-gray-900 mt-5">Seu carrinho está vazio</h3>
+        <p class="text-gray-500 mt-2">Escolha um produto e clique em adicionar para ele aparecer aqui.</p>
+        <a routerLink="/produtos" class="inline-flex mt-6 bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-extrabold px-6 py-3 rounded-lg transition">
+          Ver produtos
+        </a>
+      </div>
+    }
+  </section>
+</main>

@@ -1,9 +1,11 @@
 <section class="max-w-7xl mx-auto px-4 py-12">
   <div class="flex items-center justify-between mb-8">
     <h2 class="text-2xl font-bold text-gray-800 border-l-4 border-yellow-400 pl-4">
-      Mais Vendidos
+      {{ title }}
     </h2>
-    <a href="#" class="text-sm font-semibold text-blue-600 hover:underline">Ver todos</a>
+    @if (showHeaderLink) {
+      <a routerLink="/mais-vendidos" class="text-sm font-semibold text-blue-600 hover:underline">Ver todos</a>
+    }
   </div>
 
   <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
@@ -11,24 +13,24 @@
     @for (p of products; track p.id) {
       <div class="bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col group overflow-hidden">
         
-        <div class="relative w-full aspect-square overflow-hidden bg-gray-50 flex items-center justify-center p-4">
+        <a [routerLink]="['/produto', p.slug]" class="relative w-full aspect-square overflow-hidden bg-gray-50 flex items-center justify-center">
           <img 
             [src]="p.imageUrl" 
             [alt]="p.name" 
-            class="max-h-full max-w-full object-contain group-hover:scale-110 transition-transform duration-500"
+            class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
             loading="lazy"
           >
           
           <span class="absolute top-3 left-3 bg-red-500 text-white text-[10px] font-bold px-2 py-1 rounded">
             OFERTA
           </span>
-        </div>
+        </a>
 
         <div class="p-5 flex flex-col flex-grow border-t border-gray-100">
           <p class="text-xs text-gray-400 font-medium uppercase tracking-wider mb-1">{{ p.category }}</p>
-          <h3 class="text-sm font-semibold text-gray-700 line-clamp-2 min-h-[40px] mb-4">
+          <a [routerLink]="['/produto', p.slug]" class="text-sm font-semibold text-gray-700 hover:text-yellow-600 line-clamp-2 min-h-[40px] mb-4">
             {{ p.name }}
-          </h3>
+          </a>
 
           <div class="mt-auto">
             <p class="text-xs text-gray-400 line-through mb-1">{{ p.oldPrice | currency:'EUR' }}</p>
@@ -50,10 +52,16 @@
             <p class="text-gray-500 text-[11px] mt-1">até 10x sem juros</p>
           </div>
 
-          <button class="mt-6 w-full py-2.5 bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-bold rounded-lg text-sm transition-colors flex items-center justify-center gap-2 shadow-sm">
+          <div class="grid grid-cols-2 gap-2 mt-6">
+          <button (click)="addToCart(p)" class="py-2.5 border border-yellow-400 hover:bg-yellow-50 text-gray-900 font-bold rounded-lg text-sm transition-colors flex items-center justify-center gap-2 shadow-sm">
             <i class="fa-solid fa-cart-plus"></i>
+            Adicionar
+          </button>
+          <button (click)="buyNow(p)" class="py-2.5 bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-bold rounded-lg text-sm transition-colors flex items-center justify-center gap-2 shadow-sm">
+            <i class="fa-solid fa-bolt"></i>
             Comprar
           </button>
+          </div>
         </div>
       </div>
     } @empty {
