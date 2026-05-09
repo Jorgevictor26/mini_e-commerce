@@ -1,6 +1,6 @@
 
     <header class="w-full bg-white shadow-sm border-b-2 border-yellow-400">
-        <div class="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between gap-8">
+        <div class="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between gap-6">
             
             <a routerLink="/" class="flex items-center gap-2 min-w-fit">
                 <div class="bg-yellow-400 p-2 rounded-lg">
@@ -12,23 +12,23 @@
                 </div>
             </a>
 
-            <form (ngSubmit)="search()" class="flex-1 flex items-center border rounded-md overflow-hidden">
+            <form (ngSubmit)="search()" class="flex-1 h-11 flex items-center border border-gray-200 rounded-lg overflow-hidden bg-white">
                 <input
                     [(ngModel)]="searchTerm"
                     name="search"
                     type="text"
                     [placeholder]="'search.placeholder' | translate"
-                    class="flex-1 px-4 py-2 outline-none text-sm"
+                    class="flex-1 h-full px-4 outline-none text-sm"
                 >
-                <button type="submit" class="bg-yellow-400 px-5 py-2 hover:bg-yellow-500 transition" aria-label="Pesquisar produtos">
+                <button type="submit" class="h-full bg-yellow-400 px-5 hover:bg-yellow-500 transition" aria-label="Pesquisar produtos">
                     <i class="fa-solid fa-magnifying-glass text-gray-800"></i>
                 </button>
             </form>
 
-            <div class="flex items-center gap-6 min-w-fit text-sm text-gray-700">
+            <div class="flex items-center gap-4 min-w-fit text-sm text-gray-700">
                 <button
                     (click)="theme.toggleTheme()"
-                    class="w-10 h-10 rounded-full border border-gray-200 flex items-center justify-center hover:bg-yellow-100 hover:text-yellow-700 transition"
+                    class="w-11 h-11 rounded-lg border border-gray-200 flex items-center justify-center hover:bg-yellow-100 hover:text-yellow-700 transition"
                     [attr.aria-label]="theme.mode() === 'dark' ? ('theme.light' | translate) : ('theme.dark' | translate)"
                     [title]="theme.mode() === 'dark' ? ('theme.light' | translate) : ('theme.dark' | translate)"
                 >
@@ -42,7 +42,7 @@
                 <select
                     [ngModel]="i18n.language()"
                     (ngModelChange)="changeLanguage($event)"
-                    class="h-10 rounded-full border border-gray-200 bg-white px-3 text-sm font-extrabold outline-none focus:ring-2 focus:ring-yellow-400 cursor-pointer"
+                    class="h-11 rounded-lg bg-white px-3 text-sm font-extrabold outline-none focus:ring-2 focus:ring-yellow-400 cursor-pointer"
                     aria-label="Idioma"
                 >
                     @for (language of languages; track language.value) {
@@ -51,11 +51,16 @@
                 </select>
 
                 <div class="relative">
-                    <button (click)="toggleAccountMenu()" class="flex items-center gap-2 cursor-pointer hover:text-yellow-600 transition text-left">
+                    <button (click)="toggleAccountMenu()" class="h-11 flex items-center gap-2 cursor-pointer hover:text-yellow-600 transition text-left">
                         <i class="fa-regular fa-user text-2xl"></i>
-                        <div>
-                            <p class="text-[11px] leading-none">{{ auth.isLoggedIn() ? ('account.greeting' | translate) : ('account.enter' | translate) }}</p>
-                            <p class="font-bold flex items-center gap-1">{{ auth.isLoggedIn() ? auth.user()?.name : ('account.myAccount' | translate) }} <i class="fa-solid fa-chevron-down text-[8px]"></i></p>
+                        <div class="leading-tight">
+                            @if (auth.isLoggedIn()) {
+                                <p class="text-[11px] text-gray-500 leading-none">{{ 'account.greeting' | translate }}</p>
+                                <p class="font-extrabold flex items-center gap-1 text-gray-800">{{ auth.user()?.name }} <i class="fa-solid fa-chevron-down text-[8px]"></i></p>
+                            } @else {
+                                <p class="text-[11px] text-gray-500 leading-none">{{ 'account.enter' | translate }}</p>
+                                <p class="font-extrabold flex items-center gap-1 text-gray-800">{{ 'account.myAccount' | translate }} <i class="fa-solid fa-chevron-down text-[8px]"></i></p>
+                            }
                         </div>
                     </button>
 
@@ -103,20 +108,20 @@
                     }
                 </div>
                 
-                <a routerLink="/carrinho" class="relative cursor-pointer" aria-label="Carrinho">
+                <a routerLink="/carrinho" class="relative h-11 w-11 flex items-center justify-center cursor-pointer" aria-label="Carrinho">
                     <i class="fa-solid fa-cart-shopping text-2xl text-gray-600"></i>
                     <span class="absolute -top-2 -right-2 bg-yellow-400 text-[10px] font-bold px-1.5 py-0.5 rounded-full border-2 border-white">{{ cart.totalItems() }}</span>
                 </a>
             </div>
         </div>
 
-        <nav class="max-w-7xl mx-auto px-4 py-2 flex items-center justify-between">
-            <div class="flex items-center gap-6 text-[13px] font-medium text-gray-600 overflow-x-auto pb-1">
-                <a routerLink="/produtos" class="flex items-center gap-2 font-bold text-gray-800 hover:text-yellow-600 min-w-fit">
+        <nav class="max-w-7xl mx-auto px-4 h-10 flex items-center">
+            <div class="flex items-center gap-5 text-[13px] font-medium text-gray-600 overflow-x-auto w-full">
+                <a routerLink="/produtos" class="h-10 flex items-center gap-2 font-bold text-gray-800 hover:text-yellow-600 min-w-fit">
                     <i class="fa-solid fa-bars"></i> {{ 'nav.allCategories' | translate }}
                 </a>
                 @for (link of menuLinks; track link.url) {
-                    <a [routerLink]="link.url" class="hover:text-yellow-600 transition min-w-fit">{{ link.labelKey | translate }}</a>
+                    <a [routerLink]="link.url" class="h-10 flex items-center hover:text-yellow-600 transition min-w-fit">{{ link.labelKey | translate }}</a>
                 }
             </div>
         </nav>

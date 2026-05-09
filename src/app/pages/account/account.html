@@ -1,29 +1,174 @@
 <main class="bg-gray-50 min-h-screen">
   <section class="max-w-7xl mx-auto px-4 py-10">
-    <div class="grid grid-cols-1 lg:grid-cols-[420px_1fr] gap-8 items-start">
+    <div class="mb-8">
+      <p class="text-yellow-600 text-xs font-bold uppercase tracking-widest">Minha conta</p>
+      <h2 class="text-3xl font-extrabold text-gray-900 mt-2">Área do cliente</h2>
+      <p class="text-gray-500 mt-2">Entre, crie uma conta ou recupere o acesso para gerir compras, pedidos e dados pessoais.</p>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-[460px_1fr] gap-8 items-start">
       <section class="bg-white rounded-xl border border-gray-100 shadow-sm p-6">
         @if (!auth.isLoggedIn()) {
-        <p class="text-yellow-600 text-xs font-bold uppercase tracking-widest">Minha conta</p>
-        <h2 class="text-3xl font-extrabold text-gray-900 mt-2">Entrar na MiniShop</h2>
-        <p class="text-sm text-gray-500 mt-2">Faça login para comprar, finalizar pedidos e acompanhar entregas.</p>
+          <div class="flex items-center gap-3 mb-6">
+            <div class="w-12 h-12 rounded-lg bg-yellow-100 text-yellow-600 flex items-center justify-center text-xl">
+              @if (mode === 'login') {
+                <i class="fa-solid fa-right-to-bracket"></i>
+              } @else if (mode === 'register') {
+                <i class="fa-solid fa-user-plus"></i>
+              } @else {
+                <i class="fa-solid fa-key"></i>
+              }
+            </div>
+            <div>
+              <h3 class="text-2xl font-extrabold text-gray-900">
+                @if (mode === 'login') {
+                  Entrar
+                } @else if (mode === 'register') {
+                  Criar conta
+                } @else {
+                  Recuperar senha
+                }
+              </h3>
+              <p class="text-sm text-gray-500">
+                @if (mode === 'login') {
+                  Acesse sua conta para continuar.
+                } @else if (mode === 'register') {
+                  Comece a comprar com mais rapidez.
+                } @else {
+                  Receba instruções no seu e-mail.
+                }
+              </p>
+            </div>
+          </div>
 
-        <form (submit)="login($event)" class="mt-6 space-y-4">
-          <label class="block">
-            <span class="text-sm font-bold text-gray-700">E-mail</span>
-            <input type="email" class="mt-2 w-full border rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-yellow-400" placeholder="voce@email.com">
-          </label>
-          <label class="block">
-            <span class="text-sm font-bold text-gray-700">Senha</span>
-            <input type="password" class="mt-2 w-full border rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-yellow-400" placeholder="Sua senha">
-          </label>
-          <button class="w-full bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-extrabold py-3 rounded-lg transition">
-            Entrar
-          </button>
-        </form>
+          <div class="grid grid-cols-3 gap-2 bg-gray-50 p-1 rounded-lg">
+            <button
+              type="button"
+              (click)="setMode('login')"
+              [class]="mode === 'login' ? 'bg-white shadow-sm text-gray-900' : 'text-gray-500 hover:text-gray-900'"
+              class="py-2.5 rounded-md text-xs font-extrabold transition"
+            >
+              Entrar
+            </button>
+            <button
+              type="button"
+              (click)="setMode('register')"
+              [class]="mode === 'register' ? 'bg-white shadow-sm text-gray-900' : 'text-gray-500 hover:text-gray-900'"
+              class="py-2.5 rounded-md text-xs font-extrabold transition"
+            >
+              Criar conta
+            </button>
+            <button
+              type="button"
+              (click)="setMode('recover')"
+              [class]="mode === 'recover' ? 'bg-white shadow-sm text-gray-900' : 'text-gray-500 hover:text-gray-900'"
+              class="py-2.5 rounded-md text-xs font-extrabold transition"
+            >
+              Senha
+            </button>
+          </div>
+
+          @if (mode === 'login') {
+            <form (ngSubmit)="login()" class="mt-6 space-y-4">
+              <button type="button" (click)="loginWithGoogle()" class="w-full border border-gray-200 hover:bg-gray-50 text-gray-800 font-extrabold py-3 rounded-lg transition flex items-center justify-center gap-3">
+                <i class="fa-brands fa-google text-red-500"></i>
+                Entrar com Google
+              </button>
+
+              <div class="flex items-center gap-3">
+                <span class="h-px bg-gray-200 flex-1"></span>
+                <span class="text-xs text-gray-400 font-bold uppercase">ou</span>
+                <span class="h-px bg-gray-200 flex-1"></span>
+              </div>
+
+              <label class="block">
+                <span class="text-sm font-bold text-gray-700">E-mail</span>
+                <input [(ngModel)]="loginForm.email" name="loginEmail" type="email" class="mt-2 w-full border rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-yellow-400" placeholder="voce@email.com">
+              </label>
+              <label class="block">
+                <span class="text-sm font-bold text-gray-700">Senha</span>
+                <input [(ngModel)]="loginForm.password" name="loginPassword" type="password" class="mt-2 w-full border rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-yellow-400" placeholder="Sua senha">
+              </label>
+              <button class="w-full bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-extrabold py-3 rounded-lg transition">
+                Entrar
+              </button>
+              <div class="flex items-center justify-between gap-3 text-sm">
+                <button type="button" (click)="setMode('recover')" class="font-bold text-blue-600 hover:underline">
+                  Esqueci minha senha
+                </button>
+                <button type="button" (click)="setMode('register')" class="font-bold text-gray-700 hover:text-yellow-600">
+                  Criar conta
+                </button>
+              </div>
+            </form>
+          } @else if (mode === 'register') {
+            <form (ngSubmit)="register()" class="mt-6 space-y-4">
+              <button type="button" (click)="loginWithGoogle()" class="w-full border border-gray-200 hover:bg-gray-50 text-gray-800 font-extrabold py-3 rounded-lg transition flex items-center justify-center gap-3">
+                <i class="fa-brands fa-google text-red-500"></i>
+                Criar com Google
+              </button>
+
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <label class="block sm:col-span-2">
+                  <span class="text-sm font-bold text-gray-700">Nome completo</span>
+                  <input [(ngModel)]="registerForm.name" name="registerName" class="mt-2 w-full border rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-yellow-400" placeholder="Seu nome">
+                </label>
+                <label class="block sm:col-span-2">
+                  <span class="text-sm font-bold text-gray-700">E-mail</span>
+                  <input [(ngModel)]="registerForm.email" name="registerEmail" type="email" class="mt-2 w-full border rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-yellow-400" placeholder="voce@email.com">
+                </label>
+                <label class="block">
+                  <span class="text-sm font-bold text-gray-700">Senha</span>
+                  <input [(ngModel)]="registerForm.password" name="registerPassword" type="password" class="mt-2 w-full border rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-yellow-400" placeholder="Crie uma senha">
+                </label>
+                <label class="block">
+                  <span class="text-sm font-bold text-gray-700">Telefone</span>
+                  <input [(ngModel)]="registerForm.phone" name="registerPhone" class="mt-2 w-full border rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-yellow-400" placeholder="+244 900 000 000">
+                </label>
+                <label class="block sm:col-span-2">
+                  <span class="text-sm font-bold text-gray-700">Endereço</span>
+                  <input [(ngModel)]="registerForm.address" name="registerAddress" class="mt-2 w-full border rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-yellow-400" placeholder="Rua, bairro, cidade">
+                </label>
+              </div>
+
+              <button class="w-full bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-extrabold py-3 rounded-lg transition">
+                Criar conta
+              </button>
+              <button type="button" (click)="setMode('login')" class="w-full text-sm font-bold text-blue-600 hover:underline">
+                Já tenho uma conta
+              </button>
+            </form>
+          } @else {
+            <form (ngSubmit)="recoverPassword()" class="mt-6 space-y-4">
+              @if (message) {
+                <div class="rounded-lg bg-green-50 border border-green-100 p-4 text-green-700 text-sm font-bold">
+                  <i class="fa-solid fa-circle-check mr-2"></i>
+                  {{ message }}
+                </div>
+              }
+              <label class="block">
+                <span class="text-sm font-bold text-gray-700">E-mail da conta</span>
+                <input [(ngModel)]="recoverForm.email" name="recoverEmail" type="email" class="mt-2 w-full border rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-yellow-400" placeholder="voce@email.com">
+              </label>
+              <button class="w-full bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-extrabold py-3 rounded-lg transition">
+                Recuperar senha
+              </button>
+              <button type="button" (click)="setMode('login')" class="w-full text-sm font-bold text-blue-600 hover:underline">
+                Voltar ao login
+              </button>
+            </form>
+          }
         } @else {
-          <p class="text-yellow-600 text-xs font-bold uppercase tracking-widest">Sessão ativa</p>
-          <h2 class="text-3xl font-extrabold text-gray-900 mt-2">{{ auth.user()?.name }}</h2>
-          <p class="text-sm text-gray-500 mt-2">{{ auth.user()?.email }}</p>
+          <div class="flex items-start gap-4">
+            <div class="w-14 h-14 rounded-full bg-yellow-100 text-yellow-600 flex items-center justify-center text-2xl">
+              <i class="fa-solid fa-user"></i>
+            </div>
+            <div class="flex-1">
+              <p class="text-yellow-600 text-xs font-bold uppercase tracking-widest">Sessão ativa</p>
+              <h3 class="text-2xl font-extrabold text-gray-900 mt-1">{{ auth.user()?.name }}</h3>
+              <p class="text-sm text-gray-500 mt-1">{{ auth.user()?.email }}</p>
+            </div>
+          </div>
 
           <div class="mt-6 space-y-3">
             <a routerLink="/perfil" class="w-full border border-yellow-400 hover:bg-yellow-50 text-gray-900 font-extrabold py-3 rounded-lg transition flex items-center justify-center">
@@ -39,42 +184,69 @@
         }
       </section>
 
-      <section class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <a routerLink="/perfil" class="bg-white rounded-xl border border-gray-100 p-6 shadow-sm hover:border-yellow-400 hover:shadow-md transition">
-            <div class="w-12 h-12 rounded-lg bg-yellow-100 text-yellow-600 flex items-center justify-center text-xl">
-              <i class="fa-solid fa-user-pen"></i>
-            </div>
-            <h3 class="font-extrabold text-gray-900 mt-5">Minhas informações</h3>
-            <p class="text-sm text-gray-500 mt-2">Veja e edite dados pessoais e endereço.</p>
-          </a>
-          <a routerLink="/pedidos" class="bg-white rounded-xl border border-gray-100 p-6 shadow-sm hover:border-yellow-400 hover:shadow-md transition">
-            <div class="w-12 h-12 rounded-lg bg-yellow-100 text-yellow-600 flex items-center justify-center text-xl">
-              <i class="fa-solid fa-box"></i>
-            </div>
-            <h3 class="font-extrabold text-gray-900 mt-5">Meus pedidos</h3>
-            <p class="text-sm text-gray-500 mt-2">Acompanhe compras recentes e entregas.</p>
-          </a>
-          <article class="bg-white rounded-xl border border-gray-100 p-6 shadow-sm">
-            <div class="w-12 h-12 rounded-lg bg-yellow-100 text-yellow-600 flex items-center justify-center text-xl">
-              <i class="fa-solid fa-heart"></i>
-            </div>
-            <h3 class="font-extrabold text-gray-900 mt-5">Favoritos</h3>
-            <p class="text-sm text-gray-500 mt-2">Guarde produtos para comprar depois.</p>
-          </article>
-          <a routerLink="/perfil" class="bg-white rounded-xl border border-gray-100 p-6 shadow-sm hover:border-yellow-400 hover:shadow-md transition">
-            <div class="w-12 h-12 rounded-lg bg-yellow-100 text-yellow-600 flex items-center justify-center text-xl">
-              <i class="fa-solid fa-location-dot"></i>
-            </div>
-            <h3 class="font-extrabold text-gray-900 mt-5">Endereços</h3>
-            <p class="text-sm text-gray-500 mt-2">Gerencie locais de entrega.</p>
-          </a>
-          <article class="bg-white rounded-xl border border-gray-100 p-6 shadow-sm">
-            <div class="w-12 h-12 rounded-lg bg-yellow-100 text-yellow-600 flex items-center justify-center text-xl">
-              <i class="fa-solid fa-headset"></i>
-            </div>
-            <h3 class="font-extrabold text-gray-900 mt-5">Suporte</h3>
-            <p class="text-sm text-gray-500 mt-2">Fale conosco sobre pedidos e trocas.</p>
-          </article>
+      <section class="space-y-5">
+        @if (!auth.isLoggedIn()) {
+          <div class="bg-gray-900 text-white rounded-xl p-6 shadow-sm">
+            <p class="text-yellow-400 text-xs font-bold uppercase tracking-widest">Vantagens</p>
+            <h3 class="text-2xl font-extrabold mt-2">Uma conta para comprar melhor</h3>
+            <p class="text-gray-300 text-sm mt-3">Com login, o cliente desbloqueia checkout, tracking, histórico e edição de perfil.</p>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            @for (item of [
+              { icon: 'fa-solid fa-bolt', title: 'Checkout rápido', text: 'Dados guardados para comprar sem repetir tudo.' },
+              { icon: 'fa-solid fa-truck-fast', title: 'Tracking', text: 'Acompanhe cada fase do pedido.' },
+              { icon: 'fa-solid fa-box', title: 'Histórico', text: 'Consulte compras anteriores e estados.' },
+              { icon: 'fa-solid fa-shield-halved', title: 'Mais segurança', text: 'Acesso protegido às informações da conta.' }
+            ]; track item.title) {
+              <article class="bg-white rounded-xl border border-gray-100 p-6 shadow-sm">
+                <div class="w-12 h-12 rounded-lg bg-yellow-100 text-yellow-600 flex items-center justify-center text-xl">
+                  <i [class]="item.icon"></i>
+                </div>
+                <h3 class="font-extrabold text-gray-900 mt-5">{{ item.title }}</h3>
+                <p class="text-sm text-gray-500 mt-2">{{ item.text }}</p>
+              </article>
+            }
+          </div>
+        } @else {
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <a routerLink="/perfil" class="bg-white rounded-xl border border-gray-100 p-6 shadow-sm hover:border-yellow-400 hover:shadow-md transition">
+              <div class="w-12 h-12 rounded-lg bg-yellow-100 text-yellow-600 flex items-center justify-center text-xl">
+                <i class="fa-solid fa-user-pen"></i>
+              </div>
+              <h3 class="font-extrabold text-gray-900 mt-5">Minhas informações</h3>
+              <p class="text-sm text-gray-500 mt-2">Veja e edite dados pessoais e endereço.</p>
+            </a>
+            <a routerLink="/pedidos" class="bg-white rounded-xl border border-gray-100 p-6 shadow-sm hover:border-yellow-400 hover:shadow-md transition">
+              <div class="w-12 h-12 rounded-lg bg-yellow-100 text-yellow-600 flex items-center justify-center text-xl">
+                <i class="fa-solid fa-box"></i>
+              </div>
+              <h3 class="font-extrabold text-gray-900 mt-5">Meus pedidos</h3>
+              <p class="text-sm text-gray-500 mt-2">Acompanhe compras recentes e entregas.</p>
+            </a>
+            <article class="bg-white rounded-xl border border-gray-100 p-6 shadow-sm">
+              <div class="w-12 h-12 rounded-lg bg-yellow-100 text-yellow-600 flex items-center justify-center text-xl">
+                <i class="fa-solid fa-heart"></i>
+              </div>
+              <h3 class="font-extrabold text-gray-900 mt-5">Favoritos</h3>
+              <p class="text-sm text-gray-500 mt-2">Guarde produtos para comprar depois.</p>
+            </article>
+            <a routerLink="/perfil" class="bg-white rounded-xl border border-gray-100 p-6 shadow-sm hover:border-yellow-400 hover:shadow-md transition">
+              <div class="w-12 h-12 rounded-lg bg-yellow-100 text-yellow-600 flex items-center justify-center text-xl">
+                <i class="fa-solid fa-location-dot"></i>
+              </div>
+              <h3 class="font-extrabold text-gray-900 mt-5">Endereços</h3>
+              <p class="text-sm text-gray-500 mt-2">Gerencie locais de entrega.</p>
+            </a>
+            <article class="bg-white rounded-xl border border-gray-100 p-6 shadow-sm">
+              <div class="w-12 h-12 rounded-lg bg-yellow-100 text-yellow-600 flex items-center justify-center text-xl">
+                <i class="fa-solid fa-headset"></i>
+              </div>
+              <h3 class="font-extrabold text-gray-900 mt-5">Suporte</h3>
+              <p class="text-sm text-gray-500 mt-2">Fale conosco sobre pedidos e trocas.</p>
+            </article>
+          </div>
+        }
       </section>
     </div>
   </section>

@@ -9,11 +9,16 @@ export interface User {
   reference: string;
 }
 
+export interface RegisteredUser extends User {
+  password: string;
+}
+
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
   private readonly storageKey = 'mini-shop-user';
+  private readonly registeredUserKey = 'mini-shop-registered-user';
   readonly user = signal<User | null>(null);
 
   constructor() {
@@ -29,7 +34,10 @@ export class AuthService {
   }
 
   login(email = 'cliente@minishop.com') {
-    const user = {
+    const registeredUser = this.getRegisteredUser();
+    const user = registeredUser && registeredUser.email === email
+      ? this.toPublicUser(registeredUser)
+      : {
       name: 'Cliente MiniShop',
       email,
       phone: '+244 900 000 000',
@@ -42,6 +50,18 @@ export class AuthService {
     localStorage.setItem(this.storageKey, JSON.stringify(user));
   }
 
+  register(user: RegisteredUser) {
+    localStorage.setItem(this.registeredUserKey, JSON.stringify(user));
+    const publicUser = this.toPublicUser(user);
+
+    this.user.set(publicUser);
+    localStorage.setItem(this.storageKey, JSON.stringify(publicUser));
+  }
+
+  recoverPassword(email: string) {
+    localStorage.setItem('mini-shop-recovery-email', email);
+  }
+
   updateUser(user: User) {
     this.user.set(user);
     localStorage.setItem(this.storageKey, JSON.stringify(user));
@@ -50,5 +70,21 @@ export class AuthService {
   logout() {
     this.user.set(null);
     localStorage.removeItem(this.storageKey);
+  }
+
+  private getRegisteredUser(): RegisteredUser | null {
+    const savedUser = localStorage.getItem(this.registeredUserKey);
+    return savedUser ? JSON.parse(savedUser) : null;
+  }
+
+  private toPublicUser(user: RegisteredUser): User {
+    return {
+      name: user.name,
+      email: user.email,
+      phone: user.phone,
+      address: user.address,
+      city: user.city,
+      reference: user.reference
+    };
   }
 }
