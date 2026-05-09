@@ -67,6 +67,10 @@ export const routes: Routes = [
         component: Tracking
     },
     {
+        path: 'tracking/:orderId',
+        component: Tracking
+    },
+    {
         path: '**',
         component: NotFound
     },

@@ -1,20 +1,34 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { FormsModule } from '@angular/forms';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../services/auth';
+import { Order, orders } from '../../data/orders';
 
 @Component({
   selector: 'app-tracking',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, FormsModule, RouterModule],
   templateUrl: './tracking.html',
   styleUrl: './tracking.css'
 })
 export class Tracking {
-  constructor(public auth: AuthService) {}
+  orderId = '';
+  order?: Order;
+  notFound = false;
 
-  orderCode = 'MS-2026-0481';
-  currentStep = 2;
+  constructor(
+    public auth: AuthService,
+    private route: ActivatedRoute,
+    private router: Router
+  ) {
+    this.route.paramMap.subscribe((params) => {
+      const orderId = params.get('orderId') ?? '';
+      this.orderId = orderId;
+      this.findOrder(orderId);
+    });
+  }
+
   steps = [
     {
       title: 'Pedido confirmado',
@@ -42,4 +56,27 @@ export class Tracking {
       icon: 'fa-solid fa-house-circle-check'
     }
   ];
+
+  searchOrder() {
+    const normalizedOrderId = this.orderId.trim().toUpperCase();
+
+    if (!normalizedOrderId) {
+      this.order = undefined;
+      this.notFound = false;
+      return;
+    }
+
+    this.router.navigate(['/tracking', normalizedOrderId]);
+  }
+
+  private findOrder(orderId: string) {
+    if (!orderId) {
+      this.order = undefined;
+      this.notFound = false;
+      return;
+    }
+
+    this.order = orders.find((order) => order.code.toUpperCase() === orderId.toUpperCase());
+    this.notFound = !this.order;
+  }
 }

@@ -17,12 +17,39 @@
       <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mt-2">
         <div>
           <h2 class="text-3xl md:text-4xl font-extrabold">Acompanhar pedido</h2>
-          <p class="text-gray-300 mt-2">Pedido {{ orderCode }} previsto para entrega em 3 dias úteis.</p>
+          <p class="text-gray-300 mt-2">Insira o ID do pedido para consultar o estado da entrega.</p>
         </div>
-        <a routerLink="/produtos" class="bg-white text-gray-900 font-bold px-5 py-3 rounded-lg hover:bg-yellow-400 transition text-center">Comprar mais</a>
+        <a routerLink="/pedidos" class="bg-white text-gray-900 font-bold px-5 py-3 rounded-lg hover:bg-yellow-400 transition text-center">Ver histórico</a>
       </div>
     </div>
 
+    <section class="bg-white rounded-xl border border-gray-100 shadow-sm p-6 mb-8">
+      <form (ngSubmit)="searchOrder()" class="grid grid-cols-1 md:grid-cols-[1fr_auto] gap-3">
+        <label class="block">
+          <span class="text-sm font-bold text-gray-700">ID do pedido</span>
+          <input
+            [(ngModel)]="orderId"
+            name="orderId"
+            class="mt-2 w-full border rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-yellow-400 uppercase"
+            placeholder="Ex: MS-2026-0481"
+          >
+        </label>
+        <button class="md:self-end bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-extrabold px-6 py-3 rounded-lg transition">
+          Acompanhar pedido
+        </button>
+      </form>
+      <p class="text-xs text-gray-400 mt-3">IDs de exemplo: MS-2026-0481, MS-2026-0374, MS-2026-0290.</p>
+    </section>
+
+    @if (notFound) {
+      <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-10 text-center">
+        <i class="fa-solid fa-magnifying-glass text-4xl text-gray-300"></i>
+        <h3 class="text-2xl font-extrabold text-gray-900 mt-5">Pedido não encontrado</h3>
+        <p class="text-gray-500 mt-2">Confirme o ID do pedido e tente novamente.</p>
+      </div>
+    }
+
+    @if (order) {
     <div class="grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-8">
       <section class="bg-white rounded-xl border border-gray-100 shadow-sm p-6">
         <h3 class="text-xl font-extrabold text-gray-900 mb-6">Estado da entrega</h3>
@@ -32,12 +59,12 @@
             <div class="relative flex gap-4 pb-8 last:pb-0">
               @if (i < steps.length - 1) {
                 <div
-                  [class]="i < currentStep ? 'bg-yellow-400' : 'bg-gray-200'"
+                  [class]="i < order.currentStep ? 'bg-yellow-400' : 'bg-gray-200'"
                   class="absolute left-5 top-11 w-0.5 h-[calc(100%-44px)]"
                 ></div>
               }
               <div
-                [class]="i <= currentStep ? 'bg-yellow-400 text-gray-900' : 'bg-gray-100 text-gray-400'"
+                [class]="i <= order.currentStep ? 'bg-yellow-400 text-gray-900' : 'bg-gray-100 text-gray-400'"
                 class="relative z-10 w-10 h-10 rounded-full flex items-center justify-center shrink-0"
               >
                 <i [class]="step.icon"></i>
@@ -45,7 +72,7 @@
               <div>
                 <div class="flex items-center gap-2">
                   <h4 class="font-extrabold text-gray-900">{{ step.title }}</h4>
-                  @if (i === currentStep) {
+                  @if (i === order.currentStep) {
                     <span class="text-[10px] bg-yellow-100 text-yellow-700 font-bold px-2 py-1 rounded uppercase">Atual</span>
                   }
                 </div>
@@ -62,26 +89,31 @@
           <div class="space-y-3 text-sm mt-5">
             <div class="flex justify-between gap-4">
               <span class="text-gray-500">Transportadora</span>
-              <strong>MiniExpress</strong>
+              <strong>{{ order.carrier }}</strong>
             </div>
             <div class="flex justify-between gap-4">
               <span class="text-gray-500">Código</span>
-              <strong>{{ orderCode }}</strong>
+              <strong>{{ order.code }}</strong>
             </div>
             <div class="flex justify-between gap-4">
               <span class="text-gray-500">Previsão</span>
-              <strong>3 dias úteis</strong>
+              <strong>{{ order.eta }}</strong>
+            </div>
+            <div class="flex justify-between gap-4">
+              <span class="text-gray-500">Estado</span>
+              <strong>{{ order.status }}</strong>
             </div>
           </div>
         </article>
 
         <article class="bg-white rounded-xl border border-gray-100 shadow-sm p-6">
           <h3 class="font-extrabold text-gray-900 text-xl">Endereço</h3>
-          <p class="text-sm text-gray-500 mt-4">Luanda, Angola</p>
+          <p class="text-sm text-gray-500 mt-4">{{ order.address }}</p>
           <p class="text-sm text-gray-500">Entrega no endereço informado no checkout.</p>
         </article>
       </aside>
     </div>
+    }
     }
   </section>
 </main>
