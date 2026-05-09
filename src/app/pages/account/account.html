@@ -70,9 +70,14 @@
 
           @if (mode === 'login') {
             <form (ngSubmit)="login()" class="mt-6 space-y-4">
+              @if (auth.error()) {
+                <div class="rounded-lg bg-red-50 border border-red-100 p-4 text-red-700 text-sm font-bold">
+                  {{ auth.error() }}
+                </div>
+              }
               <button type="button" (click)="loginWithGoogle()" class="w-full border border-gray-200 hover:bg-gray-50 text-gray-800 font-extrabold py-3 rounded-lg transition flex items-center justify-center gap-3">
                 <i class="fa-brands fa-google text-red-500"></i>
-                Entrar com Google
+                Entrar como cliente demo
               </button>
 
               <div class="flex items-center gap-3">
@@ -89,8 +94,8 @@
                 <span class="text-sm font-bold text-gray-700">Senha</span>
                 <input [(ngModel)]="loginForm.password" name="loginPassword" type="password" class="mt-2 w-full border rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-yellow-400" placeholder="Sua senha">
               </label>
-              <button class="w-full bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-extrabold py-3 rounded-lg transition">
-                Entrar
+              <button [disabled]="auth.loading()" class="w-full bg-yellow-400 hover:bg-yellow-500 disabled:opacity-60 text-gray-900 font-extrabold py-3 rounded-lg transition">
+                {{ auth.loading() ? 'A entrar...' : 'Entrar' }}
               </button>
               <div class="flex items-center justify-between gap-3 text-sm">
                 <button type="button" (click)="setMode('recover')" class="font-bold text-blue-600 hover:underline">
@@ -103,6 +108,11 @@
             </form>
           } @else if (mode === 'register') {
             <form (ngSubmit)="register()" class="mt-6 space-y-4">
+              @if (auth.error()) {
+                <div class="rounded-lg bg-red-50 border border-red-100 p-4 text-red-700 text-sm font-bold">
+                  {{ auth.error() }}
+                </div>
+              }
               <button type="button" (click)="loginWithGoogle()" class="w-full border border-gray-200 hover:bg-gray-50 text-gray-800 font-extrabold py-3 rounded-lg transition flex items-center justify-center gap-3">
                 <i class="fa-brands fa-google text-red-500"></i>
                 Criar com Google
@@ -131,8 +141,8 @@
                 </label>
               </div>
 
-              <button class="w-full bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-extrabold py-3 rounded-lg transition">
-                Criar conta
+              <button [disabled]="auth.loading()" class="w-full bg-yellow-400 hover:bg-yellow-500 disabled:opacity-60 text-gray-900 font-extrabold py-3 rounded-lg transition">
+                {{ auth.loading() ? 'A criar...' : 'Criar conta' }}
               </button>
               <button type="button" (click)="setMode('login')" class="w-full text-sm font-bold text-blue-600 hover:underline">
                 Já tenho uma conta
@@ -177,6 +187,11 @@
             <a routerLink="/pedidos" class="w-full bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-extrabold py-3 rounded-lg transition flex items-center justify-center">
               Ver meus pedidos
             </a>
+            @if (auth.isStaff()) {
+              <a routerLink="/admin" class="w-full bg-gray-900 hover:bg-gray-800 text-white font-extrabold py-3 rounded-lg transition flex items-center justify-center">
+                Abrir dashboard admin
+              </a>
+            }
             <button (click)="logout()" class="w-full border border-gray-200 hover:bg-gray-100 text-gray-800 font-bold py-3 rounded-lg transition">
               Sair da conta
             </button>
@@ -224,6 +239,15 @@
               <h3 class="font-extrabold text-gray-900 mt-5">Meus pedidos</h3>
               <p class="text-sm text-gray-500 mt-2">Acompanhe compras recentes e entregas.</p>
             </a>
+            @if (auth.isStaff()) {
+              <a routerLink="/admin" class="bg-gray-900 text-white rounded-xl border border-gray-900 p-6 shadow-sm hover:bg-gray-800 transition">
+                <div class="w-12 h-12 rounded-lg bg-yellow-400 text-gray-900 flex items-center justify-center text-xl">
+                  <i class="fa-solid fa-chart-line"></i>
+                </div>
+                <h3 class="font-extrabold mt-5">Dashboard admin</h3>
+                <p class="text-sm text-gray-300 mt-2">Gerir produtos, encomendas, clientes e métricas.</p>
+              </a>
+            }
             <article class="bg-white rounded-xl border border-gray-100 p-6 shadow-sm">
               <div class="w-12 h-12 rounded-lg bg-yellow-100 text-yellow-600 flex items-center justify-center text-xl">
                 <i class="fa-solid fa-heart"></i>

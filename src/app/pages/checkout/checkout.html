@@ -25,23 +25,23 @@
           <form class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <label class="block">
               <span class="text-sm font-bold text-gray-700">Nome completo</span>
-              <input class="mt-2 w-full border rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-yellow-400" placeholder="Seu nome">
+              <input [(ngModel)]="form.recipient_name" name="recipientName" class="mt-2 w-full border rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-yellow-400" placeholder="Seu nome">
             </label>
             <label class="block">
               <span class="text-sm font-bold text-gray-700">Telefone</span>
-              <input class="mt-2 w-full border rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-yellow-400" placeholder="+244 900 000 000">
+              <input [(ngModel)]="form.phone" name="phone" class="mt-2 w-full border rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-yellow-400" placeholder="+244 900 000 000">
             </label>
             <label class="block md:col-span-2">
               <span class="text-sm font-bold text-gray-700">Endereço</span>
-              <input class="mt-2 w-full border rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-yellow-400" placeholder="Rua, bairro, cidade">
+              <input [(ngModel)]="form.street" name="street" class="mt-2 w-full border rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-yellow-400" placeholder="Rua, bairro, cidade">
             </label>
             <label class="block">
               <span class="text-sm font-bold text-gray-700">Cidade</span>
-              <input class="mt-2 w-full border rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-yellow-400" placeholder="Luanda">
+              <input [(ngModel)]="form.city" name="city" (blur)="refreshQuote()" class="mt-2 w-full border rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-yellow-400" placeholder="Luanda">
             </label>
             <label class="block">
               <span class="text-sm font-bold text-gray-700">Referência</span>
-              <input class="mt-2 w-full border rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-yellow-400" placeholder="Próximo de...">
+              <input [(ngModel)]="form.reference" name="reference" class="mt-2 w-full border rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-yellow-400" placeholder="Próximo de...">
             </label>
           </form>
         </article>
@@ -50,11 +50,11 @@
           <h3 class="text-xl font-extrabold text-gray-900 mb-5">Pagamento</h3>
           <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
             @for (method of [
-              { icon: 'fa-brands fa-cc-visa', label: 'Cartão' },
-              { icon: 'fa-solid fa-money-bill-wave', label: 'Na entrega' },
-              { icon: 'fa-brands fa-paypal', label: 'PayPal' }
+              { icon: 'fa-brands fa-cc-visa', label: 'Cartão', value: 'card' },
+              { icon: 'fa-solid fa-money-bill-wave', label: 'Na entrega', value: 'cash_on_delivery' },
+              { icon: 'fa-solid fa-building-columns', label: 'Transferência', value: 'bank_transfer' }
             ]; track method.label) {
-              <button class="border rounded-lg p-4 text-left hover:border-yellow-400 hover:bg-yellow-50 transition">
+              <button type="button" (click)="paymentMethod = method.value" [class]="paymentMethod === method.value ? 'border-yellow-400 bg-yellow-50' : 'border-gray-200'" class="border rounded-lg p-4 text-left hover:border-yellow-400 hover:bg-yellow-50 transition">
                 <i [class]="method.icon + ' text-2xl text-gray-800'"></i>
                 <span class="block font-bold text-gray-800 mt-3">{{ method.label }}</span>
               </button>
@@ -65,6 +65,9 @@
 
       <aside class="bg-white rounded-xl border border-gray-100 shadow-sm p-6 h-fit">
         <h3 class="text-xl font-extrabold text-gray-900 mb-5">Resumo do pedido</h3>
+        @if (error) {
+          <div class="mb-4 rounded-lg bg-red-50 border border-red-100 p-3 text-sm font-bold text-red-700">{{ error }}</div>
+        }
         @if (cart.items().length) {
         <div class="space-y-4">
           @for (item of cart.items(); track item.id) {
@@ -82,23 +85,38 @@
         </div>
 
         <div class="border-t mt-5 pt-5 space-y-3 text-sm">
+          <label class="block">
+            <span class="text-sm font-bold text-gray-700">Cupão</span>
+            <div class="mt-2 flex gap-2">
+              <input [(ngModel)]="couponCode" name="couponCode" class="w-full border rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-yellow-400" placeholder="MINI10">
+              <button type="button" (click)="refreshQuote()" class="px-4 rounded-lg border border-yellow-400 font-bold hover:bg-yellow-50">Aplicar</button>
+            </div>
+          </label>
           <div class="flex justify-between text-gray-600">
             <span>Subtotal</span>
             <strong>{{ cart.subtotal() | currency:'EUR' }}</strong>
           </div>
           <div class="flex justify-between text-gray-600">
             <span>Entrega</span>
-            <strong class="text-green-600">Grátis</strong>
+            <strong [class]="cart.shipping() === 0 ? 'text-green-600' : 'text-gray-900'">{{ cart.shipping() | currency:'EUR' }}</strong>
+          </div>
+          <div class="flex justify-between text-gray-600">
+            <span>Desconto</span>
+            <strong>-{{ cart.discount() | currency:'EUR' }}</strong>
+          </div>
+          <div class="flex justify-between text-gray-600">
+            <span>Impostos</span>
+            <strong>{{ cart.tax() | currency:'EUR' }}</strong>
           </div>
           <div class="flex justify-between text-gray-900 text-lg">
             <span class="font-bold">Total</span>
-            <strong>{{ cart.subtotal() | currency:'EUR' }}</strong>
+            <strong>{{ cart.total() | currency:'EUR' }}</strong>
           </div>
         </div>
 
-        <a routerLink="/tracking/MS-2026-0481" class="mt-6 w-full py-3 bg-yellow-400 hover:bg-yellow-500 rounded-lg text-gray-900 font-extrabold transition flex items-center justify-center">
-          Confirmar pedido
-        </a>
+        <button (click)="confirmOrder()" [disabled]="loading" class="mt-6 w-full py-3 bg-yellow-400 hover:bg-yellow-500 disabled:opacity-60 rounded-lg text-gray-900 font-extrabold transition flex items-center justify-center">
+          {{ loading ? 'A criar pedido...' : 'Confirmar pedido' }}
+        </button>
         } @else {
           <div class="text-center py-8">
             <i class="fa-solid fa-cart-shopping text-4xl text-gray-300"></i>

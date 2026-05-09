@@ -38,8 +38,14 @@
           Acompanhar pedido
         </button>
       </form>
-      <p class="text-xs text-gray-400 mt-3">IDs de exemplo: MS-2026-0481, MS-2026-0374, MS-2026-0290.</p>
+      <p class="text-xs text-gray-400 mt-3">Use o código recebido após o checkout ou consulte em "Meus pedidos".</p>
     </section>
+
+    @if (loading) {
+      <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-8 text-center text-gray-500 font-bold">
+        A procurar pedido...
+      </div>
+    }
 
     @if (notFound) {
       <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-10 text-center">

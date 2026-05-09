@@ -48,30 +48,31 @@ export class Account {
   }
 
   login() {
-    this.auth.login(this.loginForm.email);
-    const redirect = this.route.snapshot.queryParamMap.get('redirect') ?? '/conta';
-    this.router.navigateByUrl(redirect);
+    this.auth.login(this.loginForm.email, this.loginForm.password || 'password', () => {
+      const redirect = this.route.snapshot.queryParamMap.get('redirect') ?? (this.auth.isStaff() ? '/admin' : '/conta');
+      this.router.navigateByUrl(redirect);
+    });
   }
 
   loginWithGoogle() {
-    this.auth.login('cliente.google@gmail.com');
-    const redirect = this.route.snapshot.queryParamMap.get('redirect') ?? '/conta';
-    this.router.navigateByUrl(redirect);
+    this.auth.login('cliente@minishop.com', 'password', () => {
+      const redirect = this.route.snapshot.queryParamMap.get('redirect') ?? '/conta';
+      this.router.navigateByUrl(redirect);
+    });
   }
 
   register() {
+    const redirect = this.route.snapshot.queryParamMap.get('redirect') ?? '/conta';
+
     this.auth.register({
       name: this.registerForm.name || 'Cliente MiniShop',
       email: this.registerForm.email || 'cliente@minishop.com',
-      password: this.registerForm.password,
+      password: this.registerForm.password || 'password',
       phone: this.registerForm.phone || '+244 900 000 000',
       address: this.registerForm.address || 'Endereço não informado',
       city: this.registerForm.city || 'Luanda',
       reference: this.registerForm.reference || 'Sem referência'
-    });
-
-    const redirect = this.route.snapshot.queryParamMap.get('redirect') ?? '/conta';
-    this.router.navigateByUrl(redirect);
+    }, () => this.router.navigateByUrl(redirect));
   }
 
   recoverPassword() {

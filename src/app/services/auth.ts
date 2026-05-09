@@ -1,12 +1,15 @@
 import { Injectable, signal } from '@angular/core';
+import { ApiService } from './api';
 
 export interface User {
+  id?: number;
   name: string;
   email: string;
-  phone: string;
-  address: string;
-  city: string;
-  reference: string;
+  phone?: string;
+  address?: string;
+  city?: string;
+  reference?: string;
+  role?: string;
 }
 
 export interface RegisteredUser extends User {
@@ -18,10 +21,11 @@ export interface RegisteredUser extends User {
 })
 export class AuthService {
   private readonly storageKey = 'mini-shop-user';
-  private readonly registeredUserKey = 'mini-shop-registered-user';
   readonly user = signal<User | null>(null);
+  readonly loading = signal(false);
+  readonly error = signal('');
 
-  constructor() {
+  constructor(private api: ApiService) {
     const savedUser = localStorage.getItem(this.storageKey);
 
     if (savedUser) {
@@ -33,29 +37,46 @@ export class AuthService {
     return this.user() !== null;
   }
 
-  login(email = 'cliente@minishop.com') {
-    const registeredUser = this.getRegisteredUser();
-    const user = registeredUser && registeredUser.email === email
-      ? this.toPublicUser(registeredUser)
-      : {
-      name: 'Cliente MiniShop',
-      email,
-      phone: '+244 900 000 000',
-      address: 'Rua principal, Talatona',
-      city: 'Luanda',
-      reference: 'Próximo ao centro comercial'
-    };
+  isStaff() {
+    const role = this.user()?.role;
 
-    this.user.set(user);
-    localStorage.setItem(this.storageKey, JSON.stringify(user));
+    return role === 'admin' || role === 'manager';
   }
 
-  register(user: RegisteredUser) {
-    localStorage.setItem(this.registeredUserKey, JSON.stringify(user));
-    const publicUser = this.toPublicUser(user);
+  login(email = 'cliente@minishop.com', password = 'password', done?: () => void) {
+    this.loading.set(true);
+    this.error.set('');
 
-    this.user.set(publicUser);
-    localStorage.setItem(this.storageKey, JSON.stringify(publicUser));
+    this.api.login(email, password || 'password').subscribe({
+      next: (response) => {
+        this.api.saveToken(response.token);
+        this.setUser(this.toPublicUser(response.user as Record<string, unknown>));
+        this.loading.set(false);
+        done?.();
+      },
+      error: () => {
+        this.loading.set(false);
+        this.error.set('Credenciais inválidas ou API indisponível.');
+      },
+    });
+  }
+
+  register(user: RegisteredUser, done?: () => void) {
+    this.loading.set(true);
+    this.error.set('');
+
+    this.api.register(user).subscribe({
+      next: (response) => {
+        this.api.saveToken(response.token);
+        this.setUser(this.toPublicUser(response.user as Record<string, unknown>));
+        this.loading.set(false);
+        done?.();
+      },
+      error: () => {
+        this.loading.set(false);
+        this.error.set('Não foi possível criar a conta. Verifique os dados informados.');
+      },
+    });
   }
 
   recoverPassword(email: string) {
@@ -63,28 +84,31 @@ export class AuthService {
   }
 
   updateUser(user: User) {
-    this.user.set(user);
-    localStorage.setItem(this.storageKey, JSON.stringify(user));
+    this.setUser(user);
   }
 
   logout() {
+    this.api.logout().subscribe({ error: () => undefined });
+    this.api.clearToken();
     this.user.set(null);
     localStorage.removeItem(this.storageKey);
   }
 
-  private getRegisteredUser(): RegisteredUser | null {
-    const savedUser = localStorage.getItem(this.registeredUserKey);
-    return savedUser ? JSON.parse(savedUser) : null;
+  private setUser(user: User) {
+    this.user.set(user);
+    localStorage.setItem(this.storageKey, JSON.stringify(user));
   }
 
-  private toPublicUser(user: RegisteredUser): User {
+  private toPublicUser(user: Record<string, unknown>): User {
     return {
-      name: user.name,
-      email: user.email,
-      phone: user.phone,
-      address: user.address,
-      city: user.city,
-      reference: user.reference
+      id: Number(user['id'] ?? 0) || undefined,
+      name: String(user['name'] ?? 'Cliente MiniShop'),
+      email: String(user['email'] ?? ''),
+      phone: String(user['phone'] ?? ''),
+      role: String(user['role'] ?? 'customer'),
+      address: 'Rua principal, Talatona',
+      city: 'Luanda',
+      reference: 'Próximo ao centro comercial',
     };
   }
 }

@@ -12,7 +12,7 @@
   </div>
 
   <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-    @for (category of categories; track category.slug) {
+    @for (category of categories(); track category.slug) {
       <a
         [routerLink]="['/categoria', category.slug]"
         class="bg-white rounded-xl border border-gray-100 p-5 text-center shadow-sm hover:shadow-lg hover:border-yellow-400 transition"
@@ -28,4 +28,4 @@
 
 <app-product-list></app-product-list>
 
-<app-product-list [title]="'home.newArrivals' | translate" [products]="newProducts" [showHeaderLink]="false"></app-product-list>
+<app-product-list [title]="'home.newArrivals' | translate" [products]="newProducts()" [showHeaderLink]="false" [autoLoad]="false"></app-product-list>

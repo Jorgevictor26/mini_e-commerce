@@ -21,16 +21,24 @@
       </div>
 
       <section class="space-y-5">
-        @for (order of orders; track order.code) {
+        @if (loading) {
+          <div class="bg-white rounded-xl border border-gray-100 p-8 text-center text-gray-500 font-bold">A carregar pedidos...</div>
+        }
+        @if (error) {
+          <div class="bg-red-50 rounded-xl border border-red-100 p-4 text-red-700 font-bold">{{ error }}</div>
+        }
+        @for (order of orders; track order.id) {
           <article class="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 px-6 py-5 border-b border-gray-100">
               <div>
-                <p class="text-xs text-gray-400 font-bold uppercase tracking-wider">Pedido {{ order.code }}</p>
-                <h3 class="text-xl font-extrabold text-gray-900 mt-1">Compra de {{ order.date }}</h3>
+                <p class="text-xs text-gray-400 font-bold uppercase tracking-wider">Pedido {{ order.order_number }}</p>
+                <h3 class="text-xl font-extrabold text-gray-900 mt-1">Compra de {{ date(order) }}</h3>
+                <a [routerLink]="['/tracking', order.order_number]" [state]="{ orderId: order.id }" class="inline-flex mt-2 text-sm font-bold text-blue-600 hover:underline">Acompanhar entrega</a>
               </div>
               <div class="text-left sm:text-right">
                 <p class="text-sm text-gray-500">Total do pedido</p>
-                <p class="text-2xl font-extrabold text-gray-900">{{ order.total | currency:'EUR' }}</p>
+                <p class="text-2xl font-extrabold text-gray-900">{{ total(order) | currency:'EUR' }}</p>
+                <p class="text-xs font-bold text-yellow-700 uppercase">{{ order.status }}</p>
               </div>
             </div>
 
@@ -46,13 +54,13 @@
                   </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-100">
-                  @for (item of order.items; track item.productName) {
+                  @for (item of order.items; track item.product_name) {
                     <tr class="hover:bg-gray-50">
-                      <td class="px-6 py-4 font-bold text-gray-900">{{ item.productName }}</td>
+                      <td class="px-6 py-4 font-bold text-gray-900">{{ item.product_name }}</td>
                       <td class="px-6 py-4 text-center text-gray-700">{{ item.quantity }}</td>
-                      <td class="px-6 py-4 text-gray-700">{{ order.date }}</td>
-                      <td class="px-6 py-4 text-right text-gray-700">{{ item.unitPrice | currency:'EUR' }}</td>
-                      <td class="px-6 py-4 text-right font-extrabold text-gray-900">{{ item.unitPrice * item.quantity | currency:'EUR' }}</td>
+                      <td class="px-6 py-4 text-gray-700">{{ date(order) }}</td>
+                      <td class="px-6 py-4 text-right text-gray-700">{{ item.unit_price | currency:'EUR' }}</td>
+                      <td class="px-6 py-4 text-right font-extrabold text-gray-900">{{ item.line_total | currency:'EUR' }}</td>
                     </tr>
                   }
                 </tbody>
