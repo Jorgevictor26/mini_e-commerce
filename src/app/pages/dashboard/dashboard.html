@@ -1,1 +1,395 @@
-<h1>dashboard works!</h1>
+<main class="admin-shell min-h-screen bg-slate-100 text-slate-900">
+  <aside class="admin-sidebar">
+    <div class="flex items-center gap-3 px-4 py-5">
+      <div class="grid h-11 w-11 place-items-center rounded-xl bg-yellow-400 text-slate-950 shadow-sm">
+        <i class="fa-solid fa-bag-shopping"></i>
+      </div>
+      <div>
+        <p class="text-xs font-bold uppercase tracking-widest text-yellow-300">MiniShop</p>
+        <h1 class="text-lg font-extrabold text-white">Admin</h1>
+      </div>
+    </div>
+
+    <nav class="mt-4 space-y-1 px-3">
+      @for (item of navigation; track item.id) {
+        <button
+          type="button"
+          (click)="setTab(item.id)"
+          [class]="activeTab === item.id ? 'bg-yellow-400 text-slate-950 shadow-sm' : 'text-slate-300 hover:bg-slate-800 hover:text-white'"
+          class="admin-nav-item"
+        >
+          <i [class]="item.icon"></i>
+          <span>{{ item.label }}</span>
+        </button>
+      }
+    </nav>
+  </aside>
+
+  <section class="admin-content">
+    <header class="sticky top-0 z-20 border-b border-slate-200 bg-white/90 px-4 py-4 backdrop-blur lg:px-8">
+      <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+        <div>
+          <p class="text-xs font-bold uppercase tracking-widest text-yellow-600">Painel administrativo</p>
+          <h2 class="mt-1 text-2xl font-extrabold text-slate-950">Gestão da loja</h2>
+        </div>
+        <div class="flex flex-wrap items-center gap-3">
+          <button type="button" (click)="exportPdf()" class="admin-icon-button" title="Exportar PDF">
+            <i class="fa-solid fa-file-pdf"></i>
+          </button>
+          <button type="button" class="admin-icon-button relative" title="Notificações">
+            <i class="fa-solid fa-bell"></i>
+            <span class="absolute right-2 top-2 h-2.5 w-2.5 rounded-full bg-red-500 ring-2 ring-white"></span>
+          </button>
+          <div class="flex items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2">
+            <div class="grid h-9 w-9 place-items-center rounded-full bg-slate-900 text-sm font-extrabold text-white">A</div>
+            <div class="hidden text-sm sm:block">
+              <p class="font-extrabold text-slate-900">Administrador</p>
+              <p class="text-xs text-slate-500">admin@minishop.com</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <div class="space-y-6 p-4 lg:p-8">
+      @if (activeTab === 'overview') {
+        <section class="animate-fade-up space-y-6">
+          <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+            <article class="admin-card hover-lift">
+              <p class="text-sm font-bold text-slate-500">Receita</p>
+              <h3 class="mt-2 text-3xl font-extrabold">{{ revenue | currency:'EUR' }}</h3>
+              <p class="mt-3 text-sm text-green-600"><i class="fa-solid fa-arrow-trend-up mr-1"></i>+18% esta semana</p>
+            </article>
+            <article class="admin-card hover-lift">
+              <p class="text-sm font-bold text-slate-500">Encomendas</p>
+              <h3 class="mt-2 text-3xl font-extrabold">{{ filteredOrders.length }}</h3>
+              <p class="mt-3 text-sm text-slate-500">Status atualizável</p>
+            </article>
+            <article class="admin-card hover-lift">
+              <p class="text-sm font-bold text-slate-500">Produtos ativos</p>
+              <h3 class="mt-2 text-3xl font-extrabold">{{ activeProductsCount }}</h3>
+              <p class="mt-3 text-sm text-slate-500">Catálogo publicado</p>
+            </article>
+            <article class="admin-card hover-lift">
+              <p class="text-sm font-bold text-slate-500">Stock baixo</p>
+              <h3 class="mt-2 text-3xl font-extrabold">{{ lowStockCount }}</h3>
+              <p class="mt-3 text-sm text-yellow-700">Repor prioridade</p>
+            </article>
+          </div>
+
+          <div class="grid gap-6 xl:grid-cols-[1.4fr_1fr]">
+            <article class="admin-card">
+              <div class="flex items-center justify-between gap-4">
+                <div>
+                  <h3 class="admin-card-title">Analytics de vendas</h3>
+                  <p class="text-sm text-slate-500">Resumo dos últimos 7 dias</p>
+                </div>
+                <button type="button" (click)="setTab('analytics')" class="admin-secondary-button">Ver detalhes</button>
+              </div>
+              <div class="mt-6 flex h-64 items-end gap-3">
+                @for (bar of salesChart; track bar.label) {
+                  <div class="flex flex-1 flex-col items-center gap-2">
+                    <div class="flex h-52 w-full items-end rounded-lg bg-slate-100 p-1">
+                      <div class="w-full rounded-md bg-yellow-400 transition-all duration-500" [style.height.%]="bar.value"></div>
+                    </div>
+                    <span class="text-xs font-bold text-slate-500">{{ bar.label }}</span>
+                  </div>
+                }
+              </div>
+            </article>
+
+            <article class="admin-card">
+              <h3 class="admin-card-title">Alertas</h3>
+              <div class="mt-5 space-y-3">
+                <div class="admin-alert bg-yellow-50 text-yellow-800">
+                  <i class="fa-solid fa-triangle-exclamation"></i>
+                  <span>{{ lowStockCount }} produtos com stock baixo.</span>
+                </div>
+                <div class="admin-alert bg-blue-50 text-blue-800">
+                  <i class="fa-solid fa-bell"></i>
+                  <span>2 encomendas precisam de atualização.</span>
+                </div>
+                <div class="admin-alert bg-green-50 text-green-800">
+                  <i class="fa-solid fa-ticket"></i>
+                  <span>Cupão MINI10 está ativo.</span>
+                </div>
+              </div>
+            </article>
+          </div>
+        </section>
+      }
+
+      @if (activeTab === 'products') {
+        <section class="animate-fade-up admin-card">
+          <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+            <div>
+              <h3 class="admin-card-title">Gestão de produtos</h3>
+              <p class="text-sm text-slate-500">CRUD, upload de imagem, preço, stock e estado.</p>
+            </div>
+            <div class="flex flex-col gap-3 sm:flex-row">
+              <label class="admin-search">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input [(ngModel)]="productSearch" placeholder="Pesquisar produtos">
+              </label>
+              <button type="button" (click)="exportProductsCsv()" class="admin-secondary-button">
+                <i class="fa-solid fa-file-csv"></i> CSV
+              </button>
+              <button type="button" (click)="openCreateProductModal()" class="admin-primary-button">
+                <i class="fa-solid fa-plus"></i> Produto
+              </button>
+            </div>
+          </div>
+
+          <div class="mt-6 overflow-x-auto">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>Produto</th>
+                  <th>Categoria</th>
+                  <th>Preço</th>
+                  <th>Stock</th>
+                  <th>Estado</th>
+                  <th class="text-right">Ações</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (product of filteredProducts; track product.id) {
+                  <tr>
+                    <td>
+                      <div class="flex items-center gap-3">
+                        <img [src]="product.imageUrl" [alt]="product.name" class="h-12 w-12 rounded-lg object-cover">
+                        <div>
+                          <p class="font-extrabold text-slate-950">{{ product.name }}</p>
+                          <p class="text-xs text-slate-500">{{ product.slug }}</p>
+                        </div>
+                      </div>
+                    </td>
+                    <td>{{ product.category }}</td>
+                    <td>{{ product.price | currency:'EUR' }}</td>
+                    <td>
+                      <span [class]="stockTone(product)" class="rounded-full border px-3 py-1 text-xs font-extrabold">{{ product.stock }} un.</span>
+                    </td>
+                    <td>{{ product.status }}</td>
+                    <td class="text-right">
+                      <button type="button" (click)="openEditProductModal(product)" class="admin-row-button"><i class="fa-solid fa-pen"></i></button>
+                      <button type="button" (click)="deleteProduct(product.id)" class="admin-row-button text-red-600"><i class="fa-solid fa-trash"></i></button>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </section>
+      }
+
+      @if (activeTab === 'orders') {
+        <section class="animate-fade-up admin-card">
+          <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+            <div>
+              <h3 class="admin-card-title">Gestão de encomendas</h3>
+              <p class="text-sm text-slate-500">Status, histórico de compras, pesquisa e filtros.</p>
+            </div>
+            <div class="flex flex-col gap-3 sm:flex-row">
+              <label class="admin-search">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input [(ngModel)]="orderSearch" placeholder="Pesquisar encomendas">
+              </label>
+              <select [(ngModel)]="selectedOrderStatus" class="admin-input">
+                @for (status of orderStatuses; track status) {
+                  <option [value]="status">{{ status }}</option>
+                }
+              </select>
+              <button type="button" (click)="exportOrdersCsv()" class="admin-secondary-button">
+                <i class="fa-solid fa-file-csv"></i> CSV
+              </button>
+            </div>
+          </div>
+
+          <div class="mt-6 overflow-x-auto">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>Pedido</th>
+                  <th>Produtos</th>
+                  <th>Data</th>
+                  <th>Total</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (order of filteredOrders; track order.code) {
+                  <tr>
+                    <td class="font-extrabold text-slate-950">{{ order.code }}</td>
+                    <td>{{ order.items.length }} item(ns)</td>
+                    <td>{{ order.date }}</td>
+                    <td>{{ order.total | currency:'EUR' }}</td>
+                    <td>
+                      <select [ngModel]="order.status" (ngModelChange)="updateOrderStatus(order.code, $event)" class="admin-input min-w-44">
+                        @for (status of orderStatuses.slice(1); track status) {
+                          <option [value]="status">{{ status }}</option>
+                        }
+                      </select>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </section>
+      }
+
+      @if (activeTab === 'customers') {
+        <section class="animate-fade-up admin-card">
+          <h3 class="admin-card-title">Clientes e utilizadores</h3>
+          <div class="mt-6 overflow-x-auto">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>Cliente</th>
+                  <th>Email</th>
+                  <th>Pedidos</th>
+                  <th>Total gasto</th>
+                  <th>Perfil</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (customer of customers; track customer.email) {
+                  <tr>
+                    <td class="font-extrabold text-slate-950">{{ customer.name }}</td>
+                    <td>{{ customer.email }}</td>
+                    <td>{{ customer.orders }}</td>
+                    <td>{{ customer.spent | currency:'EUR' }}</td>
+                    <td><span class="rounded-full bg-slate-100 px-3 py-1 text-xs font-extrabold">{{ customer.status }}</span></td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </section>
+      }
+
+      @if (activeTab === 'analytics') {
+        <section class="animate-fade-up grid gap-6 xl:grid-cols-[1.2fr_1fr]">
+          <article class="admin-card">
+            <h3 class="admin-card-title">Gráfico de desempenho</h3>
+            <div class="mt-8 flex h-72 items-end gap-4">
+              @for (bar of salesChart; track bar.label) {
+                <div class="flex flex-1 flex-col items-center gap-2">
+                  <div class="w-full rounded-t-xl bg-slate-900" [style.height.%]="bar.value"></div>
+                  <span class="text-xs font-bold text-slate-500">{{ bar.label }}</span>
+                </div>
+              }
+            </div>
+          </article>
+          <article class="admin-card">
+            <h3 class="admin-card-title">Indicadores</h3>
+            <div class="mt-5 space-y-4">
+              <div class="flex justify-between rounded-xl bg-slate-50 p-4"><span>Conversão</span><strong>4.8%</strong></div>
+              <div class="flex justify-between rounded-xl bg-slate-50 p-4"><span>Ticket médio</span><strong>{{ revenue / orders.length | currency:'EUR' }}</strong></div>
+              <div class="flex justify-between rounded-xl bg-slate-50 p-4"><span>Produtos em destaque</span><strong>{{ activeProductsCount }}</strong></div>
+            </div>
+          </article>
+        </section>
+      }
+
+      @if (activeTab === 'categories') {
+        <section class="animate-fade-up grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+          @for (category of categoriesSummary; track category.name) {
+            <article class="admin-card hover-lift">
+              <i [class]="category.icon" class="text-2xl text-yellow-500"></i>
+              <h3 class="mt-4 text-xl font-extrabold">{{ category.name }}</h3>
+              <p class="mt-2 text-sm text-slate-500">{{ category.products }} produto(s) nesta categoria.</p>
+            </article>
+          }
+        </section>
+      }
+
+      @if (activeTab === 'promotions') {
+        <section class="animate-fade-up admin-card">
+          <div class="flex items-center justify-between gap-4">
+            <div>
+              <h3 class="admin-card-title">Promoções e cupões</h3>
+              <p class="text-sm text-slate-500">Campanhas ativas e expiradas.</p>
+            </div>
+            <button type="button" class="admin-primary-button"><i class="fa-solid fa-plus"></i> Cupão</button>
+          </div>
+          <div class="mt-6 grid gap-4 md:grid-cols-3">
+            @for (coupon of coupons; track coupon.code) {
+              <article class="rounded-xl border border-slate-200 p-5">
+                <p class="text-xs font-bold uppercase tracking-widest text-slate-400">Cupão</p>
+                <h4 class="mt-2 text-2xl font-extrabold">{{ coupon.code }}</h4>
+                <p class="mt-2 text-sm text-slate-500">{{ coupon.discount }} até {{ coupon.expiresAt }}</p>
+                <span class="mt-4 inline-flex rounded-full bg-yellow-50 px-3 py-1 text-xs font-extrabold text-yellow-700">{{ coupon.status }}</span>
+              </article>
+            }
+          </div>
+        </section>
+      }
+
+      @if (activeTab === 'settings') {
+        <section class="animate-fade-up admin-card">
+          <h3 class="admin-card-title">Configurações da loja</h3>
+          <form class="mt-6 grid gap-4 md:grid-cols-2">
+            <label class="admin-field">Nome da loja<input [(ngModel)]="settings.storeName" name="storeName" class="admin-input"></label>
+            <label class="admin-field">Email administrativo<input [(ngModel)]="settings.email" name="email" class="admin-input"></label>
+            <label class="admin-field">Moeda<input [(ngModel)]="settings.currency" name="currency" class="admin-input"></label>
+            <label class="admin-field">Limite de stock baixo<input [(ngModel)]="settings.lowStockLimit" name="lowStockLimit" type="number" class="admin-input"></label>
+            <label class="flex items-center gap-3 rounded-xl bg-slate-50 p-4 font-bold text-slate-700 md:col-span-2">
+              <input [(ngModel)]="settings.autoApproveOrders" name="autoApproveOrders" type="checkbox" class="h-5 w-5 accent-yellow-400">
+              Aprovar encomendas automaticamente
+            </label>
+          </form>
+        </section>
+      }
+    </div>
+  </section>
+
+  @if (showProductModal) {
+    <div class="fixed inset-0 z-50 grid place-items-center bg-slate-950/60 p-4">
+      <form (ngSubmit)="saveProduct()" class="animate-scale-in w-full max-w-3xl rounded-2xl bg-white shadow-2xl">
+        <div class="flex items-center justify-between border-b border-slate-100 px-6 py-5">
+          <h3 class="text-xl font-extrabold">{{ editingProductId ? 'Editar produto' : 'Novo produto' }}</h3>
+          <button type="button" (click)="closeProductModal()" class="admin-icon-button"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="grid gap-5 p-6 md:grid-cols-[180px_1fr]">
+          <div>
+            <img [src]="productForm.imageUrl" [alt]="productForm.name || 'Produto'" class="aspect-square w-full rounded-xl object-cover">
+            <label class="mt-3 flex cursor-pointer items-center justify-center gap-2 rounded-lg border border-dashed border-slate-300 px-3 py-3 text-sm font-bold text-slate-600 hover:bg-slate-50">
+              <i class="fa-solid fa-upload"></i>
+              Upload
+              <input type="file" accept="image/*" (change)="handleImageUpload($event)" class="hidden">
+            </label>
+          </div>
+          <div class="grid gap-4 sm:grid-cols-2">
+            <label class="admin-field sm:col-span-2">Nome<input [(ngModel)]="productForm.name" name="name" required class="admin-input"></label>
+            <label class="admin-field">Slug<input [(ngModel)]="productForm.slug" name="slug" required class="admin-input"></label>
+            <label class="admin-field">Categoria
+              <select [(ngModel)]="productForm.category" name="category" class="admin-input">
+                @for (category of categoriesSummary; track category.name) {
+                  <option [value]="category.name">{{ category.name }}</option>
+                }
+              </select>
+            </label>
+            <label class="admin-field">Preço<input [(ngModel)]="productForm.price" name="price" type="number" required class="admin-input"></label>
+            <label class="admin-field">Stock<input [(ngModel)]="productForm.stock" name="stock" type="number" required class="admin-input"></label>
+            <label class="admin-field">Estado
+              <select [(ngModel)]="productForm.status" name="status" class="admin-input">
+                <option value="Ativo">Ativo</option>
+                <option value="Pausado">Pausado</option>
+                <option value="Esgotado">Esgotado</option>
+              </select>
+            </label>
+            <label class="flex items-center gap-3 rounded-xl bg-slate-50 p-4 font-bold text-slate-700">
+              <input [(ngModel)]="productForm.isOffer" name="isOffer" type="checkbox" class="h-5 w-5 accent-yellow-400">
+              Promoção
+            </label>
+          </div>
+        </div>
+        <div class="flex justify-end gap-3 border-t border-slate-100 px-6 py-5">
+          <button type="button" (click)="closeProductModal()" class="admin-secondary-button">Cancelar</button>
+          <button class="admin-primary-button">Guardar</button>
+        </div>
+      </form>
+    </div>
+  }
+</main>

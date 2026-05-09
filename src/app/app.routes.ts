@@ -8,6 +8,7 @@ import { Checkout } from './pages/checkout/checkout';
 import { Tracking } from './pages/tracking/tracking';
 import { Orders } from './pages/orders/orders';
 import { Profile } from './pages/profile/profile';
+import { Dashboard } from './pages/dashboard/dashboard';
 import { NotFound } from './pages/not-found/not-found';
 
 export const routes: Routes = [
@@ -69,6 +70,14 @@ export const routes: Routes = [
     {
         path: 'tracking/:orderId',
         component: Tracking
+    },
+    {
+        path: 'admin',
+        component: Dashboard
+    },
+    {
+        path: 'dashboard',
+        component: Dashboard
     },
     {
         path: '**',

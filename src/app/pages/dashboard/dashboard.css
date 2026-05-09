@@ -1,0 +1,233 @@
+.admin-shell {
+  display: grid;
+  grid-template-columns: 280px minmax(0, 1fr);
+}
+
+.admin-sidebar {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+  background: #0f172a;
+}
+
+.admin-content {
+  min-width: 0;
+}
+
+.admin-nav-item {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  gap: 0.75rem;
+  border-radius: 0.75rem;
+  padding: 0.85rem 1rem;
+  font-size: 0.925rem;
+  font-weight: 800;
+  transition: background-color 160ms ease, color 160ms ease, transform 160ms ease;
+}
+
+.admin-nav-item:hover {
+  transform: translateX(2px);
+}
+
+.admin-nav-item i {
+  width: 1.25rem;
+  text-align: center;
+}
+
+.admin-card {
+  border: 1px solid #e2e8f0;
+  border-radius: 1rem;
+  background: #ffffff;
+  padding: 1.5rem;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+}
+
+.admin-card-title {
+  font-size: 1.25rem;
+  font-weight: 900;
+  color: #020617;
+}
+
+.admin-primary-button,
+.admin-secondary-button,
+.admin-icon-button,
+.admin-row-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border-radius: 0.75rem;
+  font-weight: 900;
+  transition: transform 160ms ease, background-color 160ms ease, border-color 160ms ease;
+}
+
+.admin-primary-button {
+  background: #facc15;
+  color: #111827;
+  padding: 0.75rem 1rem;
+}
+
+.admin-secondary-button {
+  border: 1px solid #e2e8f0;
+  background: #ffffff;
+  color: #334155;
+  padding: 0.75rem 1rem;
+}
+
+.admin-icon-button {
+  height: 2.75rem;
+  width: 2.75rem;
+  border: 1px solid #e2e8f0;
+  background: #ffffff;
+  color: #334155;
+}
+
+.admin-row-button {
+  height: 2.25rem;
+  width: 2.25rem;
+  color: #475569;
+}
+
+.admin-primary-button:hover,
+.admin-secondary-button:hover,
+.admin-icon-button:hover,
+.admin-row-button:hover {
+  transform: translateY(-1px);
+}
+
+.admin-primary-button:hover {
+  background: #eab308;
+}
+
+.admin-secondary-button:hover,
+.admin-icon-button:hover,
+.admin-row-button:hover {
+  background: #f8fafc;
+}
+
+.admin-search {
+  display: flex;
+  min-width: min(100%, 18rem);
+  align-items: center;
+  gap: 0.75rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.75rem;
+  background: #ffffff;
+  padding: 0 0.9rem;
+  color: #64748b;
+}
+
+.admin-search input {
+  min-height: 2.75rem;
+  width: 100%;
+  border: 0;
+  background: transparent;
+  color: #0f172a;
+  outline: 0;
+}
+
+.admin-input {
+  min-height: 2.75rem;
+  width: 100%;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.75rem;
+  background: #ffffff;
+  padding: 0 0.9rem;
+  color: #0f172a;
+  outline: 0;
+}
+
+.admin-field {
+  display: grid;
+  gap: 0.5rem;
+  color: #475569;
+  font-size: 0.875rem;
+  font-weight: 800;
+}
+
+.admin-table {
+  min-width: 760px;
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 0.875rem;
+}
+
+.admin-table th {
+  background: #f8fafc;
+  color: #64748b;
+  font-size: 0.75rem;
+  font-weight: 900;
+  letter-spacing: 0;
+  padding: 0.9rem 1rem;
+  text-align: left;
+  text-transform: uppercase;
+}
+
+.admin-table td {
+  border-bottom: 1px solid #f1f5f9;
+  color: #475569;
+  padding: 1rem;
+  vertical-align: middle;
+}
+
+.admin-table tbody tr {
+  transition: background-color 160ms ease;
+}
+
+.admin-table tbody tr:hover {
+  background: #f8fafc;
+}
+
+.admin-alert {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  border-radius: 0.875rem;
+  padding: 1rem;
+  font-weight: 800;
+}
+
+@media (max-width: 1023px) {
+  .admin-shell {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-sidebar {
+    position: static;
+    height: auto;
+  }
+
+  .admin-sidebar nav {
+    display: flex;
+    overflow-x: auto;
+    padding-bottom: 1rem;
+  }
+
+  .admin-nav-item {
+    flex: 0 0 auto;
+    width: auto;
+    white-space: nowrap;
+  }
+}
+
+@media print {
+  .admin-sidebar,
+  .admin-icon-button,
+  .admin-primary-button,
+  .admin-secondary-button,
+  .admin-row-button {
+    display: none !important;
+  }
+
+  .admin-shell {
+    display: block;
+    background: #ffffff;
+  }
+
+  header {
+    position: static !important;
+  }
+}

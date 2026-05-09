@@ -15,6 +15,60 @@ body {
   transition: background-color 180ms ease, color 180ms ease;
 }
 
+@keyframes ms-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes ms-scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes ms-slide-in {
+  from {
+    opacity: 0;
+    transform: translateX(-12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.animate-fade-up {
+  animation: ms-fade-up 420ms ease both;
+}
+
+.animate-scale-in {
+  animation: ms-scale-in 220ms ease both;
+}
+
+.animate-slide-in {
+  animation: ms-slide-in 320ms ease both;
+}
+
+.hover-lift {
+  transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
+}
+
+.hover-lift:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 18px 35px rgba(15, 23, 42, 0.08);
+}
+
 .dark body {
   background: #0f172a;
   color: #e5e7eb;
