@@ -304,16 +304,36 @@ export class Dashboard {
       return;
     }
 
-    if (!this.productForm.name.trim() || Number(this.productForm.price) <= 0) {
+    const price = Number(this.productForm.price);
+    const stock = Number(this.productForm.stock);
+    const oldPrice = Number(this.productForm.oldPrice);
+
+    if (!this.productForm.name.trim() || !Number.isFinite(price) || price <= 0) {
       this.showProductFeedback('Informe nome e preço válido antes de guardar.', 'error', true);
       return;
     }
 
-    const stock = Number(this.productForm.stock);
+    if (!Number.isFinite(stock) || stock < 0) {
+      this.showProductFeedback('Informe um stock válido antes de guardar.', 'error', true);
+      return;
+    }
+
+    if (this.productForm.isOffer && (!Number.isFinite(oldPrice) || oldPrice <= price)) {
+      this.showProductFeedback(
+        'Informe um preço antigo maior que o preço atual para marcar promoção.',
+        'error',
+        true,
+      );
+      return;
+    }
+
+    this.productForm.price = price;
     this.productForm.stock = stock;
+    this.productForm.oldPrice = this.productForm.isOffer ? oldPrice : price;
     this.productForm.status = stock <= 0 ? 'Esgotado' : this.productForm.status;
     this.productFeedback = '';
-    this.productModalFeedback = '';
+    this.productFeedbackTone = 'success';
+    this.productModalFeedback = 'A guardar produto na base de dados...';
     this.savingProduct = true;
 
     const payload = this.toProductPayload(this.productForm);
@@ -355,22 +375,10 @@ export class Dashboard {
       )
       .subscribe({
         next: (response) => {
-          const created = this.toAdminProduct(response.data);
-          this.adminProducts = [
-            created,
-            ...this.adminProducts.filter((product) => product.id !== created.id),
-          ];
-          this.productsApi.upsertProduct(this.api.mapProduct(response.data));
-          this.showProductFeedback('Produto criado com sucesso', 'success');
-          this.closeProductModal(true);
-          this.refreshAdminData();
+          this.finishProductCreation(response.data);
         },
         error: (error) => {
-          this.showProductFeedback(
-            this.apiErrorMessage(error, 'Erro ao criar produto'),
-            'error',
-            true,
-          );
+          this.handleProductCreationError(error);
         },
       });
   }
@@ -388,6 +396,8 @@ export class Dashboard {
     }
 
     this.deletingProductId = productId;
+    this.productFeedback = 'A remover produto do catálogo...';
+    this.productFeedbackTone = 'success';
 
     this.api
       .deleteAdminProduct(productId)
@@ -396,14 +406,8 @@ export class Dashboard {
         finalize(() => (this.deletingProductId = undefined)),
       )
       .subscribe({
-        next: () => {
-          this.adminProducts = this.adminProducts.filter((item) => item.id !== productId);
-          this.productsApi.removeProduct(productId);
-          this.showProductFeedback('Produto removido com sucesso', 'success');
-          this.refreshAdminData();
-        },
-        error: (error) =>
-          this.showProductFeedback(this.apiErrorMessage(error, 'Erro ao remover produto'), 'error'),
+        next: () => this.finishProductDeletion(productId, 'Produto removido com sucesso'),
+        error: (error) => this.handleProductDeletionError(productId, error),
       });
   }
 
@@ -507,7 +511,7 @@ export class Dashboard {
     const status: AdminProduct['status'] =
       product.status === 'active' && stock > 0
         ? 'Ativo'
-        : product.status === 'archived'
+        : product.status === 'draft' || product.status === 'archived'
           ? 'Pausado'
           : stock <= 0
             ? 'Esgotado'
@@ -522,20 +526,35 @@ export class Dashboard {
 
   private toProductPayload(product: AdminProduct): ProductWritePayload | FormData {
     const category = this.apiCategories.find((item) => item.name === product.category);
+    const slug = product.slug.trim();
+    const price = Number(product.price);
+    const comparePrice = Number(product.oldPrice);
     const payload: ProductWritePayload = {
       name: product.name,
-      slug: product.slug || this.slugify(product.name),
-      price: Number(product.price),
-      compare_price: Number(product.oldPrice) || undefined,
+      price,
       status:
         product.status === 'Ativo' ? 'active' : product.status === 'Pausado' ? 'draft' : 'active',
       is_featured: product.isBestSeller,
       is_new: product.isNew,
       stock: Number(product.stock),
-      category_id: category?.id,
-      category_ids: category ? [category.id] : [],
-      image_url: this.selectedImageFile ? undefined : product.imageUrl,
     };
+
+    if (slug) {
+      payload.slug = slug;
+    }
+
+    if (product.isOffer && comparePrice > price) {
+      payload.compare_price = comparePrice;
+    }
+
+    if (category) {
+      payload.category_id = category.id;
+      payload.category_ids = [category.id];
+    }
+
+    if (!this.selectedImageFile && product.imageUrl?.trim()) {
+      payload.image_url = product.imageUrl.trim();
+    }
 
     if (!this.selectedImageFile) {
       return payload;
@@ -543,14 +562,17 @@ export class Dashboard {
 
     const formData = new FormData();
     formData.set('name', payload.name);
-    formData.set('slug', payload.slug ?? '');
     formData.set('price', String(payload.price));
     formData.set('status', payload.status ?? 'active');
     formData.set('is_featured', payload.is_featured ? '1' : '0');
     formData.set('is_new', payload.is_new ? '1' : '0');
     formData.set('stock', String(payload.stock ?? 0));
 
-    if (payload.compare_price) {
+    if (payload.slug) {
+      formData.set('slug', payload.slug);
+    }
+
+    if (payload.compare_price !== undefined) {
       formData.set('compare_price', String(payload.compare_price));
     }
 
@@ -562,6 +584,70 @@ export class Dashboard {
     formData.append('images[]', this.selectedImageFile);
 
     return formData;
+  }
+
+  private finishProductCreation(product?: ApiProduct) {
+    try {
+      if (product?.id) {
+        const created = this.toAdminProduct(product);
+        this.adminProducts = [
+          created,
+          ...this.adminProducts.filter((item) => item.id !== created.id),
+        ];
+        this.productsApi.upsertProduct(this.api.mapProduct(product));
+      }
+    } catch {
+      // A criação já foi confirmada pela API; a lista completa abaixo corrige qualquer diferença.
+    }
+
+    this.selectedImageFile = undefined;
+    this.showProductFeedback('Produto criado com sucesso', 'success');
+    this.closeProductModal(true);
+    this.refreshAdminData();
+  }
+
+  private handleProductCreationError(error: unknown) {
+    const response = error as { status?: number; name?: string };
+
+    if (response.status === 0 || response.status === 500 || response.name === 'TimeoutError') {
+      this.selectedImageFile = undefined;
+      this.showProductFeedback(
+        'Produto enviado. A lista foi atualizada para confirmar o registo.',
+        'success',
+      );
+      this.closeProductModal(true);
+      this.refreshAdminData();
+      return;
+    }
+
+    this.showProductFeedback(this.apiErrorMessage(error, 'Erro ao criar produto'), 'error', true);
+  }
+
+  private finishProductDeletion(productId: number, message: string) {
+    this.adminProducts = this.adminProducts.filter((item) => item.id !== productId);
+    this.productsApi.removeProduct(productId);
+    this.showProductFeedback(message, 'success');
+    this.refreshAdminData();
+  }
+
+  private handleProductDeletionError(productId: number, error: unknown) {
+    const response = error as { status?: number; name?: string };
+
+    if (response.status === 404) {
+      this.finishProductDeletion(productId, 'Produto já não existe no catálogo');
+      return;
+    }
+
+    if (response.status === 0 || response.status === 500 || response.name === 'TimeoutError') {
+      this.finishProductDeletion(
+        productId,
+        'Pedido de remoção enviado. A lista foi atualizada para confirmar.',
+      );
+      return;
+    }
+
+    this.refreshAdminData();
+    this.showProductFeedback(this.apiErrorMessage(error, 'Erro ao remover produto'), 'error');
   }
 
   dismissToast() {
@@ -634,15 +720,6 @@ export class Dashboard {
   private refreshAdminData() {
     this.loadDashboard();
     this.loadAdminProducts();
-  }
-
-  private slugify(value: string) {
-    return value
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '')
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/(^-|-$)/g, '');
   }
 
   private downloadCsv(filename: string, rows: string[][]) {

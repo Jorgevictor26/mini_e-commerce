@@ -1,13 +1,19 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute, NavigationEnd, Router, RouterModule } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { Product } from '../../data/products';
 import { CartService } from '../../services/cart';
 import { AuthService } from '../../services/auth';
 import { I18nService } from '../../services/i18n';
 import { TranslatePipe } from '../../pipes/translate';
 import { ProductsApiService } from '../../services/products-api';
-import { filter, startWith, Subscription } from 'rxjs';
+import { combineLatest, distinctUntilChanged, map, Subscription } from 'rxjs';
+
+interface CatalogRouteState {
+  type?: string;
+  slug: string | null;
+  query: string;
+}
 
 @Component({
   selector: 'app-catalog',
@@ -36,12 +42,25 @@ export class Catalog implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.productsApi.loadCategories();
-    this.routeSubscription = this.router.events
+    this.routeSubscription = combineLatest([
+      this.route.data,
+      this.route.paramMap,
+      this.route.queryParamMap,
+    ])
       .pipe(
-        filter((event) => event instanceof NavigationEnd),
-        startWith(null),
+        map(([data, paramMap, queryParamMap]) => ({
+          type: data['type'],
+          slug: paramMap.get('slug'),
+          query: queryParamMap.get('q')?.trim() ?? '',
+        })),
+        distinctUntilChanged(
+          (previous, current) =>
+            previous.type === current.type &&
+            previous.slug === current.slug &&
+            previous.query === current.query,
+        ),
       )
-      .subscribe(() => this.applyRoute());
+      .subscribe((state) => this.applyRoute(state));
     this.refreshTimer = window.setInterval(() => this.applyRoute(), 15000);
   }
 
@@ -53,11 +72,9 @@ export class Catalog implements OnInit, OnDestroy {
     }
   }
 
-  private applyRoute() {
+  private applyRoute(state: CatalogRouteState = this.currentRouteState()) {
     const version = ++this.requestVersion;
-    const type = this.route.snapshot.data['type'];
-    const slug = this.route.snapshot.paramMap.get('slug');
-    const query = this.route.snapshot.queryParamMap.get('q')?.trim() ?? '';
+    const { type, slug, query } = state;
     this.loadingProducts = true;
     this.products = [];
 
@@ -148,6 +165,14 @@ export class Catalog implements OnInit, OnDestroy {
     }
 
     return items;
+  }
+
+  private currentRouteState(): CatalogRouteState {
+    return {
+      type: this.route.snapshot.data['type'],
+      slug: this.route.snapshot.paramMap.get('slug'),
+      query: this.route.snapshot.queryParamMap.get('q')?.trim() ?? '',
+    };
   }
 
   private normalize(value: string) {

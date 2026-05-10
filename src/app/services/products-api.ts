@@ -1,5 +1,11 @@
 import { Injectable, signal } from '@angular/core';
-import { Category, Product } from '../data/products';
+import { catchError, finalize, of, timeout } from 'rxjs';
+import {
+  categories as fallbackCategories,
+  products as fallbackProducts,
+  Category,
+  Product,
+} from '../data/products';
 import { ApiService } from './api';
 
 @Injectable({ providedIn: 'root' })
@@ -13,6 +19,7 @@ export class ProductsApiService {
 
   constructor(private api: ApiService) {
     this.products.set(this.readCachedProducts());
+    this.categories.set(fallbackCategories);
   }
 
   loadProducts(
@@ -22,35 +29,54 @@ export class ProductsApiService {
     this.loading.set(true);
     this.error.set('');
 
-    this.api.getProducts(params).subscribe({
-      next: (response) => {
-        const products = response.data.map((product) => this.api.mapProduct(product));
-        this.products.set(this.mergeProducts(products));
-        done?.(products);
-        this.loading.set(false);
-      },
-      error: () => {
-        this.error.set('Não foi possível carregar produtos da API.');
-        done?.(this.filterCachedProducts(params));
-        this.loading.set(false);
-      },
-    });
+    this.api
+      .getProducts(params)
+      .pipe(
+        timeout(6000),
+        catchError(() => {
+          this.error.set('API indisponível. A mostrar dados locais temporários.');
+          return of({ data: this.filterProducts(fallbackProducts, params) });
+        }),
+        finalize(() => this.loading.set(false)),
+      )
+      .subscribe({
+        next: (response) => {
+          const products = response.data.map((product) =>
+            'imageUrl' in product ? (product as Product) : this.api.mapProduct(product),
+          );
+          this.products.set(this.mergeProducts(products));
+          done?.(products);
+        },
+      });
   }
 
   loadCategories() {
-    this.api.getCategories().subscribe({
-      next: (categories) => {
-        this.categories.set(
-          categories.map((category) => ({
-            label: category.name,
-            slug: category.slug,
-            icon: category.icon || 'fa-solid fa-tag',
-            description: category.description || 'Produtos disponíveis nesta categoria.',
-          })),
-        );
-      },
-      error: () => this.categories.set([]),
-    });
+    this.api
+      .getCategories()
+      .pipe(
+        timeout(6000),
+        catchError(() => {
+          this.error.set('API indisponível. Categorias locais temporárias carregadas.');
+          return of([]);
+        }),
+      )
+      .subscribe({
+        next: (categories) => {
+          if (!categories.length) {
+            this.categories.set(fallbackCategories);
+            return;
+          }
+
+          this.categories.set(
+            categories.map((category) => ({
+              label: category.name,
+              slug: category.slug,
+              icon: category.icon || 'fa-solid fa-tag',
+              description: category.description || 'Produtos disponíveis nesta categoria.',
+            })),
+          );
+        },
+      });
   }
 
   findBySlug(slug: string, callback: (product?: Product, apiUnavailable?: boolean) => void) {
@@ -107,8 +133,11 @@ export class ProductsApiService {
     }
   }
 
-  private filterCachedProducts(params: Record<string, string | number | boolean | undefined>) {
-    let products = this.products();
+  private filterProducts(
+    source: Product[],
+    params: Record<string, string | number | boolean | undefined>,
+  ) {
+    let products = source;
 
     if (params['category']) {
       products = products.filter(
